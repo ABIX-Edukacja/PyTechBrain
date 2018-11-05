@@ -55,7 +55,7 @@ class PyTechBrain(object):
         if stan == 'off':
             dioda.write(0)
 
-    def RGB_czerwona(nasilenie):
+    def RGB_czerwona(self,nasilenie):
         '''
         nasilenie - wartość od 0 do 1 - odpowiada 0..255 w RGB
         '''
