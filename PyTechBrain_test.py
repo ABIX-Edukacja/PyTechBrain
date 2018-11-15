@@ -10,14 +10,14 @@ from tkinter import *
 # from Tkinter import *
 
 from pyfirmata import Arduino, util
-  
+
 def portArduino():
     lists = list(serial.tools.list_ports.comports())
     lists = sorted(lists)
     for x in lists:
         if x[1].find('CH340') != -1 or x[1].find('Arduino') != -1 or x[1].find('FT231X') != -1 or x[2].find('FTDI') != -1:
             return x[0]
-        
+
     return 'NULL'
 
 port = portArduino()
@@ -33,7 +33,7 @@ digital_6 = board.get_pin('d:6:p')
 def send_P_R(pwm_red):
     digital_5.write(int(pwm_red)/255.0)
     LB_R.config(text = "~D5: "+pwm_red)
-    
+
 def send_P_G(pwm_green):
     digital_3.write(int(pwm_green)/255.0)
     LB_G.config(text = "~D3: "+pwm_green)
@@ -48,7 +48,7 @@ digital_4 = board.get_pin('d:4:o')
 def buzzer_on():
     digital_4.write(1)
     LB1_2.config(text = "D4: HIGH")
-    
+
 def buzzer_off():
     digital_4.write(0)
     LB1_2.config(text = "D4: LOW")
@@ -58,7 +58,7 @@ digital_9 = board.get_pin('d:9:p')
 
 def send_PWM(pwm_pin9):
     digital_9.write(int(pwm_pin9)/255.0)
-    LB_PWM.config(text = "~D9: "+pwm_pin9)
+    LB_PWM.config(text = "~D9: "+pwm_pin9) # +' = '+str(int(pwm_pin9)/255.0))
 
 #frame 4
 digital_2 = board.get_pin('d:2:o')
@@ -80,7 +80,7 @@ def yellow():
     else:
         digital_7.write(0)
         LB6.config(text = "D7: LOW")
-        
+
 def green():
     if var3.get() == 1:
         digital_2.write(1)
@@ -95,7 +95,7 @@ digital_13 = board.get_pin('d:13:o')
 def LED13_on():
     digital_13.write(1)
     LB3_4.config(text = "D13: HIGH")
-    
+
 def LED13_off():
     digital_13.write(0)
     LB3_4.config(text = "D13: LOW")
@@ -113,7 +113,7 @@ def poziom(p):
         return('HIGH')
     else:
         return('LOW')
-    
+
 def read_buttons():
   def rb():
     temp = digital_10.read()
@@ -152,7 +152,7 @@ def read_analog():
     lab_5.config(text='Analog A5: '+str(int(1023*analog_5.read())))
     lab_5.after(100, ra)
   ra()
-  
+
 root = Tk()
 root.geometry('530x500')
 root.title('PyTechBrain - test')
@@ -266,19 +266,19 @@ read_buttons()
 labelframe7 = LabelFrame(root, text=" Wejścia analogowe ")
 labelframe7.grid(column=1, row=1)
 labelframe7.place(bordermode=OUTSIDE, x=270, y=110, height=150, width=250)
-lab_0 = Label(labelframe7, text = 'Analog A0: '+str(int(1023*analog_0.read())))
-lab_0.grid(column=0, row=0)
-lab_1 = Label(labelframe7, text = 'Analog A1: '+str(int(1023*analog_1.read())))
-lab_1.grid(column=0, row=1)
-lab_2 = Label(labelframe7, text = 'Analog A2: '+str(int(1023*analog_2.read())))
-lab_2.grid(column=0, row=2)
-lab_3 = Label(labelframe7, text = 'Analog A3: '+str(int(1023*analog_3.read())))
-lab_3.grid(column=0, row=3)
-lab_4 = Label(labelframe7, text = 'Analog A4: '+str(int(1023*analog_4.read())))
-lab_4.grid(column=0, row=4)
-lab_5 = Label(labelframe7, text = 'Analog A5: '+str(int(1023*analog_5.read())))
-lab_5.grid(column=0, row=5)
-read_analog()
+# lab_0 = Label(labelframe7, text = 'Analog A0: '+str(int(1023*analog_0.read())))
+# lab_0.grid(column=0, row=0)
+# lab_1 = Label(labelframe7, text = 'Analog A1: '+str(int(1023*analog_1.read())))
+# lab_1.grid(column=0, row=1)
+# lab_2 = Label(labelframe7, text = 'Analog A2: '+str(int(1023*analog_2.read())))
+# lab_2.grid(column=0, row=2)
+# lab_3 = Label(labelframe7, text = 'Analog A3: '+str(int(1023*analog_3.read())))
+# lab_3.grid(column=0, row=3)
+# lab_4 = Label(labelframe7, text = 'Analog A4: '+str(int(1023*analog_4.read())))
+# lab_4.grid(column=0, row=4)
+# lab_5 = Label(labelframe7, text = 'Analog A5: '+str(int(1023*analog_5.read())))
+# lab_5.grid(column=0, row=5)
+# read_analog()
 # end - wejścia analogowe
 
 # informacje
