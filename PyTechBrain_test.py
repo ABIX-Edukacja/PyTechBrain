@@ -15,7 +15,7 @@ def portArduino():
     lists = list(serial.tools.list_ports.comports())
     lists = sorted(lists)
     for x in lists:
-        if x[1].find('CH340') != -1 or x[1].find('Arduino') != -1 or x[2].find('FTDI') != -1:
+        if x[1].find('CH340') != -1 or x[1].find('Arduino') != -1 or x[1].find('FT231X') != -1 or x[2].find('FTDI') != -1:
             return x[0]
         
     return 'NULL'
