@@ -45,6 +45,12 @@ class PyTechBrain(object):
         self.P_B = self.board.get_pin('d:6:p')
         self.BUZ = self.board.get_pin('d:4:o')
         # czujniki analogowe
+        #                   = self.board.get_pin('a:0:i')
+        #                   = self.board.get_pin('a:1:i')
+        self.fotorezystor   = self.board.get_pin('a:2:i')
+        self.glosnosc       = self.board.get_pin('a:3:i')
+        self.temperatura    = self.board.get_pin('a:4:i')
+        self.potencjometr   = self.board.get_pin('a:5:i')
 
     def LED(dioda,stan):
         '''
