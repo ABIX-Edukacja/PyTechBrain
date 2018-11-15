@@ -100,10 +100,10 @@ def LED13_off():
     digital_13.write(0)
     LB3_4.config(text = "D13: LOW")
 
-#frame 6
-digital_10 = board.get_pin('d:10:i')
+#frame 6 - przyciski
+digital_10 = board.get_pin('d:12:i')
 digital_11 = board.get_pin('d:11:i')
-digital_12 = board.get_pin('d:12:i')
+digital_12 = board.get_pin('d:10:i')
 digital_10.enable_reporting()
 digital_11.enable_reporting()
 digital_12.enable_reporting()
