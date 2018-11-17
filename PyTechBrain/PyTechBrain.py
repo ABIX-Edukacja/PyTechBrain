@@ -1,6 +1,6 @@
 from pyfirmata import *
 from time import sleep as slp
-import serial
+import serial, sys
 import serial.tools.list_ports
 
 class PyTechBrain(object):
@@ -36,6 +36,7 @@ class PyTechBrain(object):
                 self.board = Arduino(port)
             except:
                 print('Coś nie tak z poszukiwaniem plytki - może nie podłączona lub to nie jest Linux? [port: '+port+' ]')
+                sys.exit()
         else:
             try:
                 self.board = Arduino(szukaj)
@@ -188,6 +189,16 @@ class PyTechBrain(object):
         '''
         return self.temperatura.read()
 
+    def temperatura_C(self):
+        '''
+        zwraca wartość czujnika temperatury przeliczoną na skalę Celcjusza
+        Bazuje na scenariuszu E-SWOI (CC-BY-SA)
+        http://e-swoi.pl/conspects/implementations/view/103/sterowanie-elementami-z-poziomu-aplikacji-s4a-pomiar-temperatury/
+        '''
+        x = self.temperatura.read()
+        wynik = round( ( ( (x*5) / 1024 ) - 0.05 ) / 0.01 )
+        return wynik
+
     def fotorezystor_raw(self):
         '''
         zwraca wartość fotorezystora 'raw', czyli dokładnie od 0 do 1
@@ -205,6 +216,12 @@ class PyTechBrain(object):
         zwraca wartość wychylenia potencjometru 'raw', czyli dokładnie od 0 do 1
         '''
         return self.potencjometr.read()
+
+    def potencjometr_skala(self):
+        '''
+        zwraca wartość wychylenia potencjometru w skali od 0 do 100
+        '''
+        return self.potencjometr.read() * 100        
 
     def buzzer(self,stan):
         '''
