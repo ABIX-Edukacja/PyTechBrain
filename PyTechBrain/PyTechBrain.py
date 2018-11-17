@@ -1,6 +1,6 @@
 from pyfirmata import *
 from time import sleep as slp
-import serial, sys
+import serial,sys
 import serial.tools.list_ports
 
 class PyTechBrain(object):
@@ -11,11 +11,6 @@ class PyTechBrain(object):
     chętnych do współtworzenia kodu zapraszamy
     '''
 
-    # from pyfirmata import *
-    # from time import sleep as slp
-    # import serial
-    # import serial.tools.list_ports
-
 
 
     def __init__(self,szukaj='auto'):
@@ -25,23 +20,26 @@ class PyTechBrain(object):
             for x in lists:
                 if x[1].find('FT231X') != -1:
                     return x
-            return 'NULL'
+            return 'BRAK'
 
         if szukaj == 'auto':
             try:
                 # self.board = util.get_the_board(base_dir='/dev/serial/by-id/', identifier='usb-')
                 p = portArduino()
+                if p == 'BRAK':
+                    sys.exit()
                 port = p[0]
                 print('OK - znaleziono PyTechBrain...'+port+' => '+p[2])
                 self.board = Arduino(port)
             except:
                 print('Coś nie tak z poszukiwaniem plytki - może nie podłączona lub to nie jest Linux? [port: '+port+' ]')
-                sys.exit()
+                raise
         else:
             try:
                 self.board = Arduino(szukaj)
             except:
                 print('Coś nie tak z poszukiwaniem plytki - może nie podłączona (MacOS) ?')
+                raise
 
 
         # wejścia cyfrowe - przyciski
@@ -221,7 +219,7 @@ class PyTechBrain(object):
         '''
         zwraca wartość wychylenia potencjometru w skali od 0 do 100
         '''
-        return self.potencjometr.read() * 100        
+        return self.potencjometr.read() * 100
 
     def buzzer(self,stan):
         '''
