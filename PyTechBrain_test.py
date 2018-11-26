@@ -1,6 +1,4 @@
 # coding=utf-8
-# To jest jeszcze wersja robocza ;)
-
 import serial
 import serial.tools.list_ports
 
@@ -15,7 +13,7 @@ def portArduino():
     lists = list(serial.tools.list_ports.comports())
     lists = sorted(lists)
     for x in lists:
-        if x[1].find('CH340') != -1 or x[1].find('Arduino') != -1 or x[1].find('FT231X') != -1 or x[2].find('FTDI') != -1:
+        if x[1].find('CH340') != -1 or x[1].find('Arduino') != -1 or x[2].find('FTDI') != -1:
             return x[0]
         
     return 'NULL'
@@ -129,27 +127,60 @@ def read_buttons():
   rb()
 
 #frame 7
-analog_0 = board.get_pin('a:0:i')
-analog_1 = board.get_pin('a:1:i')
+# analog_0 = board.get_pin('a:0:i')
+# analog_1 = board.get_pin('a:1:i')
 analog_2 = board.get_pin('a:2:i')
 analog_3 = board.get_pin('a:3:i')
 analog_4 = board.get_pin('a:4:i')
 analog_5 = board.get_pin('a:5:i')
-analog_0.enable_reporting()
-analog_1.enable_reporting()
+# analog_0.enable_reporting()
+# analog_1.enable_reporting()
 analog_2.enable_reporting()
 analog_3.enable_reporting()
 analog_4.enable_reporting()
 analog_5.enable_reporting()
 
+def add_space(str, ile = 5):
+    while len(str) < ile:
+        str = chr(160) + str
+    return str
+    
 def read_analog():
   def ra():
-    lab_0.config(text='Analog A0: '+str(int(1023*analog_0.read())))
-    lab_1.config(text='Analog A1: '+str(int(1023*analog_1.read())))
-    lab_2.config(text='Analog A2: '+str(int(1023*analog_2.read())))
-    lab_3.config(text='Analog A3: '+str(int(1023*analog_3.read())))
-    lab_4.config(text='Analog A4: '+str(int(1023*analog_4.read())))
-    lab_5.config(text='Analog A5: '+str(int(1023*analog_5.read())))
+    # lab_0.config(text='Analog A0: '+str(int(1023*analog_0.read())))
+    # lab_1.config(text='Analog A1: '+str(int(1023*analog_1.read())))
+
+    # odczyt natężenia światła - pin analogowy A2
+    a2 = analog_2.read() # wartość od 0 do 1
+    str_a2 = 'Natężenie światła: '
+    str_a2 += add_space(str(int(a2*100)), 5)
+    str_a2 += '%  \t\tA2:'+add_space(str(int(1023*a2)))
+    lab_2.config(text=str_a2)
+    
+    # odczyt natężenia dźwięku - pin analogowy A3
+    a3 = analog_3.read() # wartość od 0 do 1
+    str_a3 = 'Natężenie dźwięku: ' 
+    str_a3 += add_space(str(int(a3*100)), 4)
+    str_a3 += '% \t\tA3:'+add_space(str(int(1023*a3)))
+    lab_3.config(text=str_a3)
+
+    # odczyt temperatury - pin analogowy A4
+    a4 = int(1023 * analog_4.read()) # wartość od 0 do 255
+    temp = a4 * 5 / 1024.0
+    temp -= 0.5
+    temp /= 0.01
+    temp = int(temp * 10) / 10.0
+    str_a4 = 'Temperatura: ' 
+    str_a4 += add_space(str(temp), 8)
+    str_a4 += ' °C  \t\tA4:'+add_space(str(a4))
+    lab_4.config(text=str_a4)
+
+    # odczyt ustawienia potencjometru - pin analogowy A5
+    a5 = analog_5.read() # wartość od 0 do 1 typu float
+    str_a5 = 'Potencjometr: '
+    str_a5 += add_space(str(int(a5*100)), 8)
+    str_a5 += '%  \t\tA5:'+add_space(str(int(1023*a5)))
+    lab_5.config(text=str_a5)
     lab_5.after(100, ra)
   ra()
   
@@ -243,7 +274,7 @@ LB3_4.place(x=150, y=5, height=20, width=70)
 # przyciski (D10, D11 i D12)
 labelframe6 = LabelFrame(root, text=" Wejścia cyfrowe (przyciski)")
 labelframe6.grid(column=1, row=0)
-labelframe6.place(bordermode=OUTSIDE, x=270, y=10, height=90, width=250)
+labelframe6.place(bordermode=OUTSIDE, x=270, y=70, height=90, width=250)
 lbl1 = Label(labelframe6, text = 'Przycisk A: 0')
 lbl1.grid(column=0, row=0, sticky=W+S)
 lbl1a = Label(labelframe6, text = 'D10: LOW')
@@ -265,11 +296,11 @@ read_buttons()
 # wejścia analogowe (przetworniki ADC)
 labelframe7 = LabelFrame(root, text=" Wejścia analogowe ")
 labelframe7.grid(column=1, row=1)
-labelframe7.place(bordermode=OUTSIDE, x=270, y=110, height=150, width=250)
-lab_0 = Label(labelframe7, text = 'Analog A0: '+str(int(1023*analog_0.read())))
-lab_0.grid(column=0, row=0)
-lab_1 = Label(labelframe7, text = 'Analog A1: '+str(int(1023*analog_1.read())))
-lab_1.grid(column=0, row=1)
+labelframe7.place(bordermode=OUTSIDE, x=270, y=170, height=110, width=250)
+# lab_0 = Label(labelframe7, text = 'Analog A0: '+str(int(1023*analog_0.read())))
+# lab_0.grid(column=0, row=0)
+# lab_1 = Label(labelframe7, text = 'Analog A1: '+str(int(1023*analog_1.read())))
+# lab_1.grid(column=0, row=1)
 lab_2 = Label(labelframe7, text = 'Analog A2: '+str(int(1023*analog_2.read())))
 lab_2.grid(column=0, row=2)
 lab_3 = Label(labelframe7, text = 'Analog A3: '+str(int(1023*analog_3.read())))
@@ -282,14 +313,15 @@ read_analog()
 # end - wejścia analogowe
 
 # informacje
-hardware = '***\nHardware: Adam Jurkiewicz\n'
+hardware = '\n***\nHardware: Adam Jurkiewicz\n'
 hardware += '(pomysł i dystrybucja)\n'
 hardware += 'https://cyfrowaszkola.waw.pl/'
 software = '***\nSoftware: Wiesław Rychlicki\n'
 software += 'https://github.com/wrata/PyTechBrain\n'
+software += 'Wersja 1.0\n2018-11-26\n'
 labelframe8 = LabelFrame(root, text=" O projekcie PyTechBrain ")
 labelframe8.grid(column=1, row=2)
-labelframe8.place(bordermode=OUTSIDE, x=270, y=270, height=160, width=250)
+labelframe8.place(bordermode=OUTSIDE, x=270, y=290, height=200, width=250)
 opis1 = Label(labelframe8, text = hardware)
 opis1.grid(column=0, row=0)
 opis2 = Label(labelframe8, text = software)
@@ -299,7 +331,7 @@ opis2.grid(column=0, row=2)
 # wykryte urządzenie
 labelframe9 = LabelFrame(root, text=" PyTechBrain at port ")
 labelframe9.grid(column=1, row=3)
-labelframe9.place(bordermode=OUTSIDE, x=270, y=440, height=50, width=250)
+labelframe9.place(bordermode=OUTSIDE, x=270, y=10, height=50, width=250)
 LB = Label(labelframe9, text = port)
 LB.pack()
 # end - urządzenie
