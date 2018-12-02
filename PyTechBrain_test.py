@@ -15,8 +15,11 @@ def portArduino():
     lists = list(serial.tools.list_ports.comports())
     lists = sorted(lists)
     for x in lists:
-        if x[1].find('CH340') != -1 or x[1].find('Arduino') != -1 or x[2].find('FTDI') != -1:
+        print(x[0],x[1])
+        if x[1].find('CH340') != -1 or x[1].find('Arduino') != -1 or x[1].find('FTDI') != -1 or x[1].find('FT231') != -1:
+            print('Found at: ',x[0],' Model: ',x[1])
             return x[0]
+    print('Brak PyTechBrain (FT231X)...')
     sys.exit()
     return 'NULL'
 
@@ -320,7 +323,7 @@ hardware += '(pomysł i dystrybucja)\n'
 hardware += 'https://cyfrowaszkola.waw.pl/'
 software = '***\nSoftware: Wiesław Rychlicki\n'
 software += 'https://github.com/wrata/PyTechBrain\n'
-software += 'Wersja 1.0\n2018-11-26\n'
+software += 'Wersja 1.1\n2018-12-02\n'
 labelframe8 = LabelFrame(root, text=" O projekcie PyTechBrain ")
 labelframe8.grid(column=1, row=2)
 labelframe8.place(bordermode=OUTSIDE, x=270, y=290, height=200, width=250)
