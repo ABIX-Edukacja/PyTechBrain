@@ -26,8 +26,6 @@ class PyTechBrain(object):
             try:
                 # self.board = util.get_the_board(base_dir='/dev/serial/by-id/', identifier='usb-')
                 p = portArduino()
-                if p == 'BRAK':
-                    sys.exit()
                 port = p[0]
                 print('OK - znaleziono PyTechBrain...'+port+' => '+p[2])
                 self.board = Arduino(port)
@@ -168,6 +166,29 @@ class PyTechBrain(object):
 
         if stan == 'off':
             self.L_G.write(0)
+
+    def przycisk_left(self):
+        for x in range(3):
+            wynik = self.B01.read()
+            if wynik:
+                return wynik
+        return wynik
+
+    def przycisk_middle(self):
+        for x in range(3):
+            wynik = self.B02.read()
+            if wynik:
+                return wynik
+        return wynik
+
+    def przycisk_right(self):
+        for x in range(3):
+            wynik = self.B03.read()
+            if wynik:
+                return wynik
+        return wynik
+
+
 
     def przycisk_lewy(self):
         wynik = self.B01.read()
