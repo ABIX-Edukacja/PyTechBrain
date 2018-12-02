@@ -9,6 +9,7 @@ class PyTechBrain(object):
     Uwaga - na chwilę obecną automatyczne wyszukiwanie płytki działa w Linux i Windows (sprawdzone)
     wówczas szukaj  = 'auto' lub w ogóle nie trzeba nic podawać, w macOS należy  podac odpowiedni COM, np. /dev/cuayyy34
     chętnych do współtworzenia kodu zapraszamy
+    wersja z ulepszoną obsługą wczytywania klawiszy
     '''
 
 
