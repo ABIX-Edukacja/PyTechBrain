@@ -9,6 +9,7 @@ class PyTechBrain(object):
     Uwaga - na chwilę obecną automatyczne wyszukiwanie płytki działa w Linux i Windows (sprawdzone)
     wówczas szukaj  = 'auto' lub w ogóle nie trzeba nic podawać, w macOS należy  podac odpowiedni COM, np. /dev/cuayyy34
     chętnych do współtworzenia kodu zapraszamy
+    wersja z ulepszoną obsługą wczytywania klawiszy
     '''
 
 
@@ -20,7 +21,7 @@ class PyTechBrain(object):
             for x in lists:
                 if x[1].find('FT231X') != -1:
                     return x
-            return 'BRAK'
+            return None
 
         if szukaj == 'auto':
             try:
@@ -168,21 +169,21 @@ class PyTechBrain(object):
             self.L_G.write(0)
 
     def przycisk_left(self):
-        for x in range(3):
+        for x in range(2):
             wynik = self.B01.read()
             if wynik:
                 return wynik
         return wynik
 
     def przycisk_middle(self):
-        for x in range(3):
+        for x in range(2):
             wynik = self.B02.read()
             if wynik:
                 return wynik
         return wynik
 
     def przycisk_right(self):
-        for x in range(3):
+        for x in range(2):
             wynik = self.B03.read()
             if wynik:
                 return wynik
@@ -221,8 +222,12 @@ class PyTechBrain(object):
     def fotorezystor_raw(self):
         '''
         zwraca wartość fotorezystora 'raw', czyli dokładnie od 0 do 1
+        na wszelki wypadek 4 odczyty podzielone przez 4
         '''
-        return self.fotorezystor.read()
+        a = self.fotorezystor.read()
+        if a == None:
+            a = 0
+        return a
 
     def glosnosc_raw(self):
         '''
@@ -234,13 +239,18 @@ class PyTechBrain(object):
         '''
         zwraca wartość wychylenia potencjometru 'raw', czyli dokładnie od 0 do 1
         '''
-        return self.potencjometr.read()
+        a = self.potencjometr.read()
+        if a == None:
+            a = 0
+        return a
 
     def potencjometr_skala(self):
         '''
         zwraca wartość wychylenia potencjometru w skali od 0 do 100
         '''
-        return self.potencjometr.read() * 100
+        return self.potencjometr_raw() * 100
+
+
 
     def buzzer(self,stan):
         '''
