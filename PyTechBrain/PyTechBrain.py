@@ -224,10 +224,7 @@ class PyTechBrain(object):
         zwraca wartość fotorezystora 'raw', czyli dokładnie od 0 do 1
         na wszelki wypadek 4 odczyty podzielone przez 4
         '''
-        a = self.fotorezystor.read()
-        if a == None:
-            a = 0
-        return a
+        return self.fotorezystor.read()
 
     def glosnosc_raw(self):
         '''
@@ -239,10 +236,7 @@ class PyTechBrain(object):
         '''
         zwraca wartość wychylenia potencjometru 'raw', czyli dokładnie od 0 do 1
         '''
-        a = self.potencjometr.read()
-        if a == None:
-            a = 0
-        return a
+        return self.potencjometr_raw()
 
     def potencjometr_skala(self):
         '''
