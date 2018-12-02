@@ -1,7 +1,5 @@
-#!/usr/bin/env python3
-# To jest jeszcze wersja robocza ;)
-
-import serial,sys
+# coding=utf-8
+import serial
 import serial.tools.list_ports
 
 # Python 3
@@ -10,14 +8,14 @@ from tkinter import *
 # from Tkinter import *
 
 from pyfirmata import Arduino, util
-
+  
 def portArduino():
     lists = list(serial.tools.list_ports.comports())
     lists = sorted(lists)
     for x in lists:
         if x[1].find('CH340') != -1 or x[1].find('Arduino') != -1 or x[2].find('FTDI') != -1:
             return x[0]
-    sys.exit()
+        
     return 'NULL'
 
 port = portArduino()
@@ -33,7 +31,7 @@ digital_6 = board.get_pin('d:6:p')
 def send_P_R(pwm_red):
     digital_5.write(int(pwm_red)/255.0)
     LB_R.config(text = "~D5: "+pwm_red)
-
+    
 def send_P_G(pwm_green):
     digital_3.write(int(pwm_green)/255.0)
     LB_G.config(text = "~D3: "+pwm_green)
@@ -48,7 +46,7 @@ digital_4 = board.get_pin('d:4:o')
 def buzzer_on():
     digital_4.write(1)
     LB1_2.config(text = "D4: HIGH")
-
+    
 def buzzer_off():
     digital_4.write(0)
     LB1_2.config(text = "D4: LOW")
@@ -58,7 +56,7 @@ digital_9 = board.get_pin('d:9:p')
 
 def send_PWM(pwm_pin9):
     digital_9.write(int(pwm_pin9)/255.0)
-    LB_PWM.config(text = "~D9: "+pwm_pin9) # +' = '+str(int(pwm_pin9)/255.0))
+    LB_PWM.config(text = "~D9: "+pwm_pin9)
 
 #frame 4
 digital_2 = board.get_pin('d:2:o')
@@ -80,7 +78,7 @@ def yellow():
     else:
         digital_7.write(0)
         LB6.config(text = "D7: LOW")
-
+        
 def green():
     if var3.get() == 1:
         digital_2.write(1)
@@ -95,15 +93,15 @@ digital_13 = board.get_pin('d:13:o')
 def LED13_on():
     digital_13.write(1)
     LB3_4.config(text = "D13: HIGH")
-
+    
 def LED13_off():
     digital_13.write(0)
     LB3_4.config(text = "D13: LOW")
 
-#frame 6 - przyciski
-digital_10 = board.get_pin('d:12:i')
+#frame 6
+digital_10 = board.get_pin('d:10:i')
 digital_11 = board.get_pin('d:11:i')
-digital_12 = board.get_pin('d:10:i')
+digital_12 = board.get_pin('d:12:i')
 digital_10.enable_reporting()
 digital_11.enable_reporting()
 digital_12.enable_reporting()
@@ -113,7 +111,7 @@ def poziom(p):
         return('HIGH')
     else:
         return('LOW')
-
+    
 def read_buttons():
   def rb():
     temp = digital_10.read()
@@ -146,7 +144,7 @@ def add_space(str, ile = 5):
     while len(str) < ile:
         str = chr(160) + str
     return str
-
+    
 def read_analog():
   def ra():
     # lab_0.config(text='Analog A0: '+str(int(1023*analog_0.read())))
@@ -158,10 +156,10 @@ def read_analog():
     str_a2 += add_space(str(int(a2*100)), 5)
     str_a2 += '%  \t\tA2:'+add_space(str(int(1023*a2)))
     lab_2.config(text=str_a2)
-
+    
     # odczyt natężenia dźwięku - pin analogowy A3
     a3 = analog_3.read() # wartość od 0 do 1
-    str_a3 = 'Natężenie dźwięku: '
+    str_a3 = 'Natężenie dźwięku: ' 
     str_a3 += add_space(str(int(a3*100)), 4)
     str_a3 += '% \t\tA3:'+add_space(str(int(1023*a3)))
     lab_3.config(text=str_a3)
@@ -172,7 +170,7 @@ def read_analog():
     temp -= 0.5
     temp /= 0.01
     temp = int(temp * 10) / 10.0
-    str_a4 = 'Temperatura: '
+    str_a4 = 'Temperatura: ' 
     str_a4 += add_space(str(temp), 8)
     str_a4 += ' °C  \t\tA4:'+add_space(str(a4))
     lab_4.config(text=str_a4)
@@ -185,7 +183,7 @@ def read_analog():
     lab_5.config(text=str_a5)
     lab_5.after(100, ra)
   ra()
-
+  
 root = Tk()
 root.geometry('530x500')
 root.title('PyTechBrain - test')
@@ -339,4 +337,3 @@ LB.pack()
 # end - urządzenie
 
 root.mainloop()
-sys.exit()
