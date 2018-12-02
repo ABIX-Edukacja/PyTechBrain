@@ -1,7 +1,7 @@
-# coding=utf-8
+#!/usr/bin/env python3
 # To jest jeszcze wersja robocza ;)
 
-import serial
+import serial,sys
 import serial.tools.list_ports
 
 # Python 3
@@ -17,7 +17,7 @@ def portArduino():
     for x in lists:
         if x[1].find('CH340') != -1 or x[1].find('Arduino') != -1 or x[1].find('FT231X') != -1 or x[2].find('FTDI') != -1:
             return x[0]
-
+    sys.exit()
     return 'NULL'
 
 port = portArduino()
@@ -305,3 +305,4 @@ LB.pack()
 # end - urządzenie
 
 root.mainloop()
+sys.exit()
