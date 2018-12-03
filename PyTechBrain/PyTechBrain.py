@@ -21,7 +21,7 @@ class PyTechBrain(object):
             for x in lists:
                 if x[1].find('FT231X') != -1:
                     return x
-            return None
+            return 'BRAK'
 
         if szukaj == 'auto':
             try:
@@ -222,7 +222,6 @@ class PyTechBrain(object):
     def fotorezystor_raw(self):
         '''
         zwraca wartość fotorezystora 'raw', czyli dokładnie od 0 do 1
-        na wszelki wypadek 4 odczyty podzielone przez 4
         '''
         return self.fotorezystor.read()
 
@@ -236,7 +235,7 @@ class PyTechBrain(object):
         '''
         zwraca wartość wychylenia potencjometru 'raw', czyli dokładnie od 0 do 1
         '''
-        return self.potencjometr_raw()
+        return self.potencjometr.read()
 
     def potencjometr_skala(self):
         '''
