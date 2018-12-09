@@ -1,13 +1,54 @@
 #!/usr/bin/env python3
 # coding=utf-8
+"""
+ Copyright (c) 2018 Wiesław Rychlicki All rights reserved.
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
+ Version 3 as published by the Free Software Foundation; either
+ or (at your option) any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ General Public License for more details.
 
+ Program przeznaczony jest do testowania płytki edukacyjnej PyTechBrain
+ według projektu Adama Jurkiewicza (http://pytechbrain.edu.pl/).
+
+ W programie wykorzystano moduł pymata_aio (https://github.com/MrYsLab/pymata-aio)
+ autorstwa Alan'a Yorinks'a (MrYsLab) oraz oprogramowanie firmowe do Arduino tego
+ autora (https://github.com/MrYsLab/pymata-aio/tree/master/FirmataPlus).
+ 
+"""
+
+# Import modułu PyMata3 dla Python'a 3
 from pymata_aio.pymata3 import PyMata3
 from pymata_aio.constants import Constants
+
+# Import modułu interfejsu graficznego (GUI)
 from tkinter import *
 
+# Wykrywanie portu szeregowego, do którego przyłączono płytkę PyTechBrain.
+# Potrzebne wyłącznie do wyświetlenia nazwy portu w interfejsie programu.
+
+import serial.tools.list_ports
+
+def portArduino():
+    lists = list(serial.tools.list_ports.comports())
+    lists = sorted(lists)
+    for x in lists:
+        if x[2].find('FTDI') != -1 or x[1].find('USB Serial Port') != -1:
+            return x[0]
+    return 'NULL'
+
+
+# Nazwa portu (np. COM4)
+port = portArduino()
+
+# Utworzenie obiektu board (płytka) i automatyczna detekcja portu szeregowego.
 board = PyMata3()
 
-#frame 1
+# Frame 1 - dioda RGB podłączona do pinów D3, D5 i D6 (PWM).
+
 board.set_pin_mode(5, Constants.PWM)
 board.set_pin_mode(3, Constants.PWM)
 board.set_pin_mode(6, Constants.PWM)
@@ -24,7 +65,7 @@ def send_P_B(pwm_blue):
     board.analog_write(6, int(pwm_blue))
     LB_B.config(text = "~D6: "+pwm_blue)
 
-#frame 2
+# Frame 2 - buzzer podłączony do pinu D2.
 
 def buzzer_on():
     board.play_tone(4, Constants.TONE_TONE, 440)
@@ -34,7 +75,8 @@ def buzzer_off():
     board.play_tone(4, Constants.TONE_NO_TONE, 440)
     LB1_2.config(text = "D4: OFF")
 
-#frame 3
+# Frame 3 - biała dioda LED podłączona do pinu D9 (PWM).
+
 board.set_pin_mode(9, Constants.PWM)
 
 def send_PWM(pwm_pin9):
@@ -42,9 +84,13 @@ def send_PWM(pwm_pin9):
     LB_PWM.config(text = "~D9: "+pwm_pin9)
     
 
-#frame 4
+# Frame 4 - model sygnalizatora drogowego 
+
+#  Światło zielone - pin D2    
 board.set_pin_mode(2, Constants.OUTPUT)
+#  Światło żółte - pin D7 
 board.set_pin_mode(7, Constants.OUTPUT)
+#  Światło czerwone - pin D8 
 board.set_pin_mode(8, Constants.OUTPUT)
 
 def red():
@@ -71,7 +117,8 @@ def green():
         board.digital_write(2, 0)
         LB7.config(text = "D2: LOW")
 
-#frame 5
+# Frame 5 - dioda LED (wbudowana) - pin D13.
+        
 board.set_pin_mode(13, Constants.OUTPUT)
 
 def LED13_on():
@@ -83,7 +130,9 @@ def LED13_off():
     LB3_4.config(text = "D13: LOW")
 
 
-#frame 6
+# Frame 6 - obsługa przycisków - piny D12, D11 i D10
+# (w kolejności od lewej stromy do prawej)
+
 board.set_pin_mode(10, Constants.INPUT)
 board.set_pin_mode(11, Constants.INPUT)
 board.set_pin_mode(12, Constants.INPUT)
@@ -111,66 +160,65 @@ def read_buttons():
     lbl3.after(10, rb)
   rb()
 
-#frame 7
+# Frame 7 - odczytywanie danych z przetworników ADC
+# - piny analogowe A2, A3, A4 i A5 (A0 i A1 - niewykorzystane).
+
+# Pomiar natężenia światła - pin A2
 board.set_pin_mode(2, Constants.ANALOG)
-board.set_pin_mode(3, Constants.ANALOG)
-board.set_pin_mode(4, Constants.ANALOG)
-board.set_pin_mode(5, Constants.ANALOG)
 board.enable_analog_reporting(2)
+# Pomiar natężenia dźwięku - pin A3
+board.set_pin_mode(3, Constants.ANALOG)
 board.enable_analog_reporting(3)
+# Pomiar temperatury - pin A4
+board.set_pin_mode(4, Constants.ANALOG)
 board.enable_analog_reporting(4)
+# Pomiar napięcia (z suwaka potencjometru) - pin A5
+board.set_pin_mode(5, Constants.ANALOG)
 board.enable_analog_reporting(5)
 
-def add_space(str, ile = 5):
-    while len(str) < ile:
-        str = chr(160) + str
-    return str
-
-def proc(ar):
-    return str(int(ar/1023.0*100))
-    
 def read_analog():
   def ra():
-
-    # odczyt natężenia światła - pin analogowy A2
-    a2 = board.analog_read(2) # wartość od 0 do 1023
-    str_a2 = 'Natężenie światła: '
-    str_a2 += add_space(proc(a2), 6)
-    str_a2 += '%  \t\tA2:'+add_space(str(a2))
+    # Odczyt natężenia światła - pin analogowy A2.
+    a2 = board.analog_read(2) # Wartość od 0 do 1023.
+    str_a2 = 'Natężenie światła: {0:6.0f}%'.format(a2/1023.0*100)
+    str_a2 += '\t\tA2: {0:5d}'.format(a2)
     lab_2.config(text=str_a2)
     
-    # odczyt natężenia dźwięku - pin analogowy A3
-    a3 = board.analog_read(3) # wartość od 0 do 1023
-    str_a3 = 'Natężenie dźwięku: ' 
-    str_a3 += add_space(proc(a3), 5)
-    str_a3 += '% \t\tA3:'+add_space(str(a3))
+    # Odczyt natężenia dźwięku - pin analogowy A3.
+    a3 = board.analog_read(3) # Wartość od 0 do 1023.
+    str_a3 = 'Natężenie dźwięku:{0:5.0f}%'.format(a3/1023.0*100) 
+    str_a3 += '\t\tA3: {0:5d}'.format(a3)
     lab_3.config(text=str_a3)
 
-    # odczyt temperatury - pin analogowy A4
-    a4 = board.analog_read(4) # wartość od 0 do 1023
-    temp = a4 * 5 / 1023.0 / 2.45 # korekta wynikająca z użycia wzmacniacza
+    # Odczyt temperatury - pin analogowy A4.
+    a4 = board.analog_read(4) # Wartość od 0 do 1023.
+    temp = a4 * 5 / 1023.0 / 2.45
+    # 2.45 korekta wynikająca z użycia wzmacniacza - wartość może
+    # być inna w każdej płytce (zależy od wartości użytych rezystorów)
     temp -= 0.5
     temp /= 0.01
-    temp = int(temp * 10) / 10.0
-    str_a4 = 'Temperatura: ' 
-    str_a4 += add_space(str(temp), 8)
-    str_a4 += ' °C  \t\tA4:'+add_space(str(a4))
+    str_a4 = 'Temperatura: {0:8.1f} °C'.format(temp)  
+    str_a4 += '\t\tA4: {0:5d}'.format(a4)
     lab_4.config(text=str_a4)
 
-    # odczyt ustawienia potencjometru - pin analogowy A5
-    a5 = board.analog_read(5) # wartość od 0 do 1023
-    str_a5 = 'Potencjometr: '
-    str_a5 += add_space(proc(a5), 8)
-    str_a5 += '%  \t\tA5:'+add_space(str(a5))
+    # Odczyt ustawienia potencjometru - pin analogowy A5.
+    a5 = board.analog_read(5) # Wartość od 0 do 1023.
+    str_a5 = 'Potencjometr: {0:5.0f}%'.format(a5/1023.0*100)
+    str_a5 += '\t\tA5: {0:5d}'.format(a5)
     lab_5.config(text=str_a5)
     lab_5.after(100, ra)
   ra()
- 
+
+
+# Główne okno programu.    
 root = Tk()
 root.geometry('530x500')
 root.title('PyTechBrain3 - test')
 
-# dioda RGB (PWM D5, D3 i D6)
+# Budowanie interfejsu graficznego programu.
+
+# Frame 1 - dioda RGB (PWM D5, D3 i D6).
+
 labelframe1 = LabelFrame(root, text=" Dioda RGB ")
 labelframe1.grid(column=0, row=0)
 labelframe1.place(bordermode=OUTSIDE, x=10, y=10, height=150, width=250)
@@ -191,7 +239,8 @@ LB_B = Label(labelframe1, text = "~D6: 0")
 LB_B.grid(column=2, row=2, sticky=W+S)
 # end - dioda RGB
 
-# buzzer (On/Off) - pin D4
+# Frame 2 - buzzer (On/Off) - pin D4.
+
 labelframe2 = LabelFrame(root, text=" Buzzer ")
 labelframe2.grid(column=0, row=1)
 labelframe2.place(bordermode=OUTSIDE, x=10, y=170, height=50, width=250)
@@ -206,7 +255,8 @@ LB1_2.grid(column=2, row=0)
 LB1_2.place(bordermode=OUTSIDE, x=150, y=20, height=20, width=70)
 # end buzzer
 
-# PWM - pin D9
+# Frame 3 - PWM, pin D9.
+
 labelframe3 = LabelFrame(root, text=" PWM - pin D9 ")
 labelframe3.grid(column=0, row=2)
 labelframe3.place(bordermode=OUTSIDE, x=10, y=230, height=90, width=250)
@@ -217,7 +267,8 @@ LB_PWM = Label(labelframe3, text = "~D9: 0")
 LB_PWM.grid(column=2, row=0, sticky=W+S)
 # end - PWM
 
-# sygnalizator drogowy
+# Frame 4 - sygnalizator drogowy.
+
 labelframe4 = LabelFrame(root, text=" Sygnalizator drogowy ")
 labelframe4.grid(column=0, row=3)
 labelframe4.place(bordermode=OUTSIDE, x=10, y=330, height=100, width=250)
@@ -238,7 +289,8 @@ LB7.grid(column=1, row=2)
 LB7.place(bordermode=OUTSIDE, x=150, y=70, height=20, width=70)
 # end - sygnalizator drogowy
 
-# dioda LED13 - pin 13
+# Frame 5 - dioda LED, pin 13.
+
 labelframe5 = LabelFrame(root, text=" Dioda LED13 ")
 labelframe5.grid(column=0, row=4)
 labelframe5.place(bordermode=OUTSIDE, x=10, y=440, height=50, width=250)
@@ -253,7 +305,8 @@ LB3_4.grid(column=2, row=0, sticky=W+S)
 LB3_4.place(x=150, y=5, height=20, width=70)
 # end - LED13
 
-# przyciski (D10, D11 i D12)
+# Frame 6 - przyciski (D10, D11 i D12).
+
 labelframe6 = LabelFrame(root, text=" Wejścia cyfrowe (przyciski)")
 labelframe6.grid(column=1, row=0)
 labelframe6.place(bordermode=OUTSIDE, x=270, y=70, height=90, width=250)
@@ -275,7 +328,8 @@ lbl3a.place(x=150, y=40)
 read_buttons()
 # end - przyciski
 
-# wejścia analogowe (przetworniki ADC)
+# Frame 7 - wejścia analogowe (przetworniki ADC).
+
 labelframe7 = LabelFrame(root, text=" Wejścia analogowe ")
 labelframe7.grid(column=1, row=1)
 labelframe7.place(bordermode=OUTSIDE, x=270, y=170, height=110, width=250)
@@ -294,7 +348,8 @@ lab_5.place(x=0, y=60)
 read_analog()
 # end - wejścia analogowe
 
-# informacje
+# Frame 8 - informacje o projekcie i programie.
+
 hardware = '\n***\nHardware: Adam Jurkiewicz\n'
 hardware += '(pomysł i dystrybucja)\n'
 hardware += 'https://cyfrowaszkola.waw.pl/'
@@ -310,12 +365,13 @@ opis2 = Label(labelframe8, text = software)
 opis2.grid(column=0, row=2)
 # end - informacje
 
-# wykryte urządzenie
+# Frame 9 - port szeregowy wykrytego urządzenia.
+
 labelframe9 = LabelFrame(root, text=" PyTechBrain at port ")
 labelframe9.grid(column=1, row=3)
 labelframe9.place(bordermode=OUTSIDE, x=270, y=10, height=50, width=250)
-LB = Label(labelframe9, text = "port")
+LB = Label(labelframe9, text = port)
 LB.pack()
-# end - urządzenie
+# end - port
 
 root.mainloop()
