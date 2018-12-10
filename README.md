@@ -76,3 +76,6 @@ self.temperatura    = self.board.get_pin('a:4:i')
 self.potencjometr   = self.board.get_pin('a:5:i')
 
 ==============================================================
+
+W programie wykorzystano moduł pymata_aio (https://github.com/MrYsLab/pymata-aio) autorstwa Alan'a Yorinks'a (MrYsLab) oraz oprogramowanie firmowe do Arduino tego autora (https://github.com/MrYsLab/pymata-aio/tree/master/FirmataPlus).
+
