@@ -1,5 +1,10 @@
-from pyfirmata import *
-from time import sleep as slp
+try:
+    from pyfirmata import *
+except:
+    print('Brak modułu PyFirmata - PyTechBrain nie będzie działać prawidłowo....')
+    print('------------[ ERROR ]------------------------------------------------')
+
+from time import sleep
 import serial,sys
 import serial.tools.list_ports
 
@@ -189,25 +194,31 @@ class PyTechBrain(object):
                 return wynik
         return wynik
 
-
-
-    def przycisk_lewy(self):
+# poniżej stare wersje odczytu - nie zawsze działały jak należy
+    def przycisk_lewy_old(self):
         wynik = self.B01.read()
         return 'HIGH' if wynik else 'LOW'
 
-    def przycisk_srodkowy(self):
+    def przycisk_srodkowy_old(self):
         wynik = self.B02.read()
         return 'HIGH' if wynik else 'LOW'
 
-    def przycisk_prawy(self):
+    def przycisk_prawy_old(self):
         wynik = self.B03.read()
         return 'HIGH' if wynik else 'LOW'
+###############################################################
 
+
+# metody odczytujące czujniki analogowe
     def temperatura_raw(self):
         '''
         zwraca wartość czujnika temperatury 'raw', czyli dokładnie od 0 do 1
         '''
-        return self.temperatura.read()
+        oddaj = self.temperatura.read()
+        if oddaj == None:
+            oddaj = 0
+        return oddaj
+
 
     def temperatura_C(self):
         '''
@@ -215,7 +226,7 @@ class PyTechBrain(object):
         Bazuje na scenariuszu E-SWOI (CC-BY-SA)
         http://e-swoi.pl/conspects/implementations/view/103/sterowanie-elementami-z-poziomu-aplikacji-s4a-pomiar-temperatury/
         '''
-        x = self.temperatura.read()
+        x = self.temperatura_raw()
         wynik = round( ( ( (x*5) / 1024 ) - 0.05 ) / 0.01 )
         return wynik
 
@@ -223,35 +234,40 @@ class PyTechBrain(object):
         '''
         zwraca wartość fotorezystora 'raw', czyli dokładnie od 0 do 1
         '''
-        return self.fotorezystor.read()
+        oddaj = self.fotorezystor.read()
+        return 0 if oddaj == None else oddaj
 
     def glosnosc_raw(self):
         '''
         zwraca wartość czujnika głośności 'raw', czyli dokładnie od 0 do 1
         '''
-        return self.glosnosc.read()
+        oddaj = self.glosnosc.read()
+        return 0 if oddaj == None else oddaj
 
     def potencjometr_raw(self):
         '''
         zwraca wartość wychylenia potencjometru 'raw', czyli dokładnie od 0 do 1
         '''
-        return self.potencjometr.read()
+        oddaj = self.potencjometr.read()
+        return 0 if oddaj == None else oddaj
+
 
     def potencjometr_skala(self):
         '''
-        zwraca wartość wychylenia potencjometru w skali od 0 do 100
+        zwraca wartość wychylenia potencjometru w skali od -50 do +50
+        Zatem 0 to środek położenia potencjometru
         '''
-        return self.potencjometr_raw() * 100
+        return ( self.potencjometr_raw() - 0.5 )
+
+################################################################################
 
 
-
-    def buzzer(self,stan):
+    def buzzer_sygnal(self):
         '''
-        stan = 'on' - włącza dźwięk
-        stan = 'off' - wyłącza dźwięk
+        Aby wydobyć minimalny dźwięk, należy włączyć, wyłączyć i tak min. 2 razy
         '''
-        if stan == 'on':
+        for x in range(1):
             self.BUZ.write(1)
-
-        if stan == 'off':
+            sleep(0.06)
             self.BUZ.write(0)
+            sleep(0.06)
