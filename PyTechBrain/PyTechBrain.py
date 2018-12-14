@@ -1,20 +1,46 @@
+'''
+ Copyright (c) 2018 ABIX Edukacja - All rights reserved.
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
+ Version 3 as published by the Free Software Foundation; either
+ or (at your option) any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ General Public License for more details.
+
+ Program przeznaczony jest do płytki edukacyjnej PyTechBrain
+ https://pytechbrain.edu.pl/
+ https://sklep.cyfrowaszkola.waw.pl/PyTechBrain-Python-elektronika-mechatronika
+ https://github.com/ABIX-Edukacja/PyTechBrain
+
+ W programie wykorzystano moduł pymata_aio (https://github.com/MrYsLab/pymata-aio)
+ autorstwa Alan'a Yorinks'a (MrYsLab) oraz oprogramowanie firmowe do Arduino tego
+ autora (https://github.com/MrYsLab/pymata-aio/tree/master/FirmataPlus)
+'''
+
+_pytechbrain_version_ = 0.1
+
 try:
-    from pyfirmata import *
+    from pymata_aio.pymata3 import PyMata3
+    from pymata_aio.constants import Constants
 except:
-    print('Brak modułu PyFirmata - PyTechBrain nie będzie działać prawidłowo....')
-    print('------------[ ERROR ]------------------------------------------------')
+    print('Brak modułu PyMata3 - PyTechBrain nie będzie działać prawidłowo....')
+    print('------------[ ERROR ]----------------------------------------------')
 
 from time import sleep
 import serial,sys
 import serial.tools.list_ports
 
+print('OK - załadowałem moduł PyTechBrain... [ '+ str(_pytechbrain_version_) +' ]')
+
 class PyTechBrain(object):
     '''
     Obiekt typu PyFirmata, kod działa z Python3 - płytka produkcji ABIX Edukacja
     Uwaga - na chwilę obecną automatyczne wyszukiwanie płytki działa w Linux i Windows (sprawdzone)
-    wówczas szukaj  = 'auto' lub w ogóle nie trzeba nic podawać, w macOS należy  podac odpowiedni COM, np. /dev/cuayyy34
-    chętnych do współtworzenia kodu zapraszamy
-    wersja z ulepszoną obsługą wczytywania klawiszy
+    wówczas szukaj  = 'auto' lub w ogóle nie trzeba nic podawać,
+    w macOS być może należy podać odpowiedni COM, np. /dev/cuayyy34
+    chętnych do współtworzenia kodu zapraszamy https://github.com/ABIX-Edukacja/PyTechBrain
     '''
 
 
@@ -26,109 +52,118 @@ class PyTechBrain(object):
             for x in lists:
                 if x[1].find('FT231X') != -1:
                     return x
-            return 'BRAK'
+            return None
 
         if szukaj == 'auto':
             try:
-                # self.board = util.get_the_board(base_dir='/dev/serial/by-id/', identifier='usb-')
+                print('Próba automatycznej detekcji portu ...')
                 p = portArduino()
                 port = p[0]
                 print('OK - znaleziono PyTechBrain...'+port+' => '+p[2])
-                self.board = Arduino(port)
+                self.board = PyMata3(com_port=port)
             except:
-                print('Coś nie tak z poszukiwaniem plytki - może nie podłączona lub to nie jest Linux? [port: '+port+' ]')
+                print('Coś nie tak z poszukiwaniem plytki - może nie podłączona? [port: '+port+' ]')
                 raise
         else:
             try:
-                self.board = Arduino(szukaj)
+                print('Próba podłączenia portu podanego jako parametr...')
+                self.board = PyMata3(com_port=szukaj)
             except:
                 print('Coś nie tak z poszukiwaniem plytki - może nie podłączona (MacOS) ?')
                 raise
 
 
+        # ustawienie parametrów wejść/wyjść
         # wejścia cyfrowe - przyciski
-        self.B01 = self.board.get_pin('d:12:i')
-        self.B01.enable_reporting()
-        self.B02 = self.board.get_pin('d:11:i')
-        self.B02.enable_reporting()
-        self.B03 = self.board.get_pin('d:10:i')
-        self.B03.enable_reporting()
-        # wyjścia cyfrowe
-        self.L13 = self.board.get_pin('d:13:o')
-        # Dioda PWM
-        self.PWM = self.board.get_pin('d:9:p')
-        # Sygnalizator
-        self.L_R = self.board.get_pin('d:8:o')
-        self.L_Y = self.board.get_pin('d:7:o')
-        self.L_G = self.board.get_pin('d:2:o')
+        self.B01 = 12
+        self.B02 = 11
+        self.B03 = 10
+        self.board.set_pin_mode(self.B01, Constants.INPUT)
+        self.board.set_pin_mode(self.B02, Constants.INPUT)
+        self.board.set_pin_mode(self.B03, Constants.INPUT)
+        self.board.enable_digital_reporting(self.B01)
+        self.board.enable_digital_reporting(self.B02)
+        self.board.enable_digital_reporting(self.B03)
+        # wyjścia cyfrowe LED serwisowy
+        self.L13 = 13
+        self.board.set_pin_mode(self.L13, Constants.OUTPUT)
+        # Dioda PWM niebieska
+        self.PWM = 9
+        self.board.set_pin_mode(self.PWM, Constants.PWM)
+        # Sygnalizator świateł na skrzyżowaniu
+        self.L_R = 8  # red
+        self.L_Y = 7  # yellow
+        self.L_G = 2  # green
+        self.board.set_pin_mode(self.L_R, Constants.OUTPUT)
+        self.board.set_pin_mode(self.L_Y, Constants.OUTPUT)
+        self.board.set_pin_mode(self.L_G, Constants.OUTPUT)
         # dioda RGB
-        self.P_R = self.board.get_pin('d:5:p') # sprawdzić !!!!
-        self.P_G = self.board.get_pin('d:3:p')
-        self.P_B = self.board.get_pin('d:6:p')
+        self.P_R = 5
+        self.P_G = 3
+        self.P_B = 6
+        self.board.set_pin_mode(self.P_R, Constants.PWM)
+        self.board.set_pin_mode(self.P_G, Constants.PWM)
+        self.board.set_pin_mode(self.P_B, Constants.PWM)
         # buzzer
-        self.BUZ = self.board.get_pin('d:4:o')
+        self.BUZ = 4
+        self.board.set_pin_mode(self.BUZ, Constants.OUTPUT)
         # czujniki analogowe
-        #                   = self.board.get_pin('a:0:i')
-        #                   = self.board.get_pin('a:1:i')
-        self.fotorezystor   = self.board.get_pin('a:2:i')
-        self.fotorezystor.enable_reporting()
-        self.glosnosc       = self.board.get_pin('a:3:i')
-        self.glosnosc.enable_reporting()
-        self.temperatura    = self.board.get_pin('a:4:i')
-        self.temperatura.enable_reporting()
-        self.potencjometr   = self.board.get_pin('a:5:i')
-        self.potencjometr.enable_reporting()
+        #                   = 0
+        #                   = 1
+        self.FOTOREZYSTOR   = 2
+        self.GLOSNOSC       = 3
+        self.TEMPERATURA    = 4
+        self.POTENCJOMETR   = 5
+        self.board.set_pin_mode(self.FOTOREZYSTOR,  Constants.ANALOG)
+        self.board.set_pin_mode(self.GLOSNOSC,      Constants.ANALOG)
+        self.board.set_pin_mode(self.TEMPERATURA,   Constants.ANALOG)
+        self.board.set_pin_mode(self.POTENCJOMETR,  Constants.ANALOG)
+        self.board.enable_analog_reporting(self.FOTOREZYSTOR)
+        self.board.enable_analog_reporting(self.GLOSNOSC)
+        self.board.enable_analog_reporting(self.TEMPERATURA)
+        self.board.enable_analog_reporting(self.POTENCJOMETR)
         # włączam raportowanie
-        self.it = util.Iterator(self.board)
-        self.it.start()
-
-    def LED(dioda,stan):
-        '''
-        Niskopoziomowa funkcja - nie korzystaj z niej normalnie.
-        '''
-        if stan == 'on':
-            dioda.write(1)
-        if stan == 'off':
-            dioda.write(0)
+        #self.it = util.Iterator(self.board)
+        #self.it.start()
 
     def RGB_czerwona(self,nasilenie):
         '''
-        nasilenie - wartość od 0 do 1 - odpowiada 0..255 w RGB
+        nasilenie - wartość 0..255
         '''
         if nasilenie < 0:
             nasilenie = 0
-        if nasilenie > 1:
-            nasilenie = 1
-        self.P_R.write(nasilenie)
+        if nasilenie > 255:
+            nasilenie = 255
+        self.board.analog_write(self.P_R, nasilenie)
 
     def RGB_zielona(self,nasilenie):
         '''
-        nasilenie - wartość od 0 do 1 - odpowiada 0..255 w RGB
+        nasilenie - wartość 0..255
         '''
         if nasilenie < 0:
             nasilenie = 0
-        if nasilenie > 1:
-            nasilenie = 1
-        self.P_G.write(nasilenie)
+        if nasilenie > 255:
+            nasilenie = 255
+        self.board.analog_write(self.P_G, nasilenie)
 
     def RGB_niebieska(self,nasilenie):
         '''
-        nasilenie - wartość od 0 do 1 - odpowiada 0..255 w RGB
+        nasilenie - wartość od 0..255
         '''
         if nasilenie < 0:
             nasilenie = 0
-        if nasilenie > 1:
-            nasilenie = 1
-        self.P_B.write(nasilenie)
+        if nasilenie > 255:
+            nasilenie = 255
+        self.board.analog_write(self.P_B, nasilenie)
 
     def RGB_kolor(self,red,green,blue):
         '''
-        ta funkcja ustawi diodę RGB - podajemy wartości od 1 do 255,
-        funkcja przeliczy resztę
+        ta funkcja ustawi diodę RGB - podajemy wartości od 0 do 255,
+        wszystkie kolory w jednym parametrze (r,g,b) = Tupla
         '''
-        self.RGB_czerwona(red/255.0)
-        self.RGB_zielona(green/255.0)
-        self.RGB_niebieska(blue/255.0)
+        self.RGB_czerwona(red)
+        self.RGB_zielona(green)
+        self.RGB_niebieska(blue)
 
     def PWM_modulacja(self,nasilenie):
         '''
@@ -136,9 +171,9 @@ class PyTechBrain(object):
         '''
         if nasilenie < 0:
             nasilenie = 0
-        if nasilenie > 1:
-            nasilenie = 1
-        self.PWM.write(nasilenie)
+        if nasilenie > 255:
+            nasilenie = 255
+        self.board.analog_write(self.PWM, nasilenie)
 
     def sygnalizator_czerwony(self,stan):
         '''
@@ -146,10 +181,10 @@ class PyTechBrain(object):
         stan = 'off' - wyłącza światło sygnalizatora
         '''
         if stan == 'on':
-            self.L_R.write(1)
+            self.board.digital_write(self.L_R,1)
 
         if stan == 'off':
-            self.L_R.write(0)
+            self.board.digital_write(self.L_R,0)
 
     def sygnalizator_zolty(self,stan):
         '''
@@ -157,10 +192,10 @@ class PyTechBrain(object):
         stan = 'off' - wyłącza światło sygnalizatora
         '''
         if stan == 'on':
-            self.L_Y.write(1)
+            self.board.digital_write(self.L_Y,1)
 
         if stan == 'off':
-            self.L_Y.write(0)
+            self.board.digital_write(self.L_Y,0)
 
     def sygnalizator_zielony(self,stan):
         '''
@@ -168,106 +203,101 @@ class PyTechBrain(object):
         stan = 'off' - wyłącza światło sygnalizatora
         '''
         if stan == 'on':
-            self.L_G.write(1)
+            self.board.digital_write(self.L_G,1)
 
         if stan == 'off':
-            self.L_G.write(0)
+            self.board.digital_write(self.L_G,0)
 
-    def przycisk_left(self):
+    def przycisk_lewy(self):
+        return self.board.digital_read(self.B01)
+
+    def przycisk_srodkowy(self):
+        return self.board.digital_read(self.B02)
+
+    def przycisk_prawy(self):
+        return self.board.digital_read(self.B03)
+
+    # a teraz inna wersja, czyta dwa razy na wszelki wypadek
+    def przycisk_lewy_2(self):
         for x in range(2):
-            wynik = self.B01.read()
+            wynik = self.board.digital_read(self.B01)
             if wynik:
                 return wynik
         return wynik
 
-    def przycisk_middle(self):
+    def przycisk_srodkowy_2(self):
         for x in range(2):
-            wynik = self.B02.read()
+            wynik = self.board.digital_read(self.B02)
             if wynik:
                 return wynik
         return wynik
 
-    def przycisk_right(self):
+    def przycisk_prawy_2(self):
         for x in range(2):
-            wynik = self.B03.read()
+            wynik = self.board.digital_read(self.B03)
             if wynik:
                 return wynik
         return wynik
 
-# poniżej stare wersje odczytu - nie zawsze działały jak należy
-    def przycisk_lewy_old(self):
-        wynik = self.B01.read()
-        return 'HIGH' if wynik else 'LOW'
-
-    def przycisk_srodkowy_old(self):
-        wynik = self.B02.read()
-        return 'HIGH' if wynik else 'LOW'
-
-    def przycisk_prawy_old(self):
-        wynik = self.B03.read()
-        return 'HIGH' if wynik else 'LOW'
-###############################################################
-
-
-# metody odczytujące czujniki analogowe
+    # metody odczytujące czujniki analogowe
     def temperatura_raw(self):
         '''
-        zwraca wartość czujnika temperatury 'raw', czyli dokładnie od 0 do 1
+        zwraca wartość czujnika temperatury 'raw', czyli dokładnie co oddaje czujnik
         '''
-        oddaj = self.temperatura.read()
-        if oddaj == None:
-            oddaj = 0
-        return oddaj
-
+        oddaj = self.board.analog_read(self.TEMPERATURA)
+        return 0 if oddaj == None else oddaj
 
     def temperatura_C(self):
         '''
         zwraca wartość czujnika temperatury przeliczoną na skalę Celcjusza
-        Bazuje na scenariuszu E-SWOI (CC-BY-SA)
-        http://e-swoi.pl/conspects/implementations/view/103/sterowanie-elementami-z-poziomu-aplikacji-s4a-pomiar-temperatury/
+        Bazuje na obliczeniach Wiesława Raty z Leska
         '''
         x = self.temperatura_raw()
-        wynik = round( ( ( (x*5) / 1024 ) - 0.05 ) / 0.01 )
+        wynik = round( x * 5 / 1023.0 / 2.45 ,0)
         return wynik
 
     def fotorezystor_raw(self):
         '''
-        zwraca wartość fotorezystora 'raw', czyli dokładnie od 0 do 1
+        zwraca wartość fotorezystora 'raw', czyli dokładnie co oddaje czujnik
         '''
-        oddaj = self.fotorezystor.read()
+        oddaj = self.board.analog_read(self.FOTOREZYSTOR)
         return 0 if oddaj == None else oddaj
 
     def glosnosc_raw(self):
         '''
-        zwraca wartość czujnika głośności 'raw', czyli dokładnie od 0 do 1
+        zwraca wartość czujnika głośności 'raw', czyli dokładnie co oddaje czujnik
         '''
-        oddaj = self.glosnosc.read()
+        oddaj = self.board.analog_read(self.GLOSNOSC)
         return 0 if oddaj == None else oddaj
 
     def potencjometr_raw(self):
         '''
-        zwraca wartość wychylenia potencjometru 'raw', czyli dokładnie od 0 do 1
+        zwraca wartość wychylenia potencjometru 'raw', czyli dokładnie co oddaje czujnik
         '''
-        oddaj = self.potencjometr.read()
+        oddaj = self.board.analog_read(self.POTENCJOMETR)
         return 0 if oddaj == None else oddaj
 
 
     def potencjometr_skala(self):
         '''
-        zwraca wartość wychylenia potencjometru w skali od -50 do +50
-        Zatem 0 to środek położenia potencjometru
+        zwraca wartość wychylenia potencjometru w skali od -52 do +51
+        Zatem 0 to mniej więcej środek położenia potencjometru
+        Ta funkcja wymaga zapewne doszlifowania ...
         '''
-        return ( self.potencjometr_raw() - 0.5 )
+        return ( ( self.potencjometr_raw() - 511.5 ) // 10 )
 
 ################################################################################
 
 
-    def buzzer_sygnal(self):
+    def buzzer_sygnal(self,stan):
         '''
-        Aby wydobyć minimalny dźwięk, należy włączyć, wyłączyć i tak min. 2 razy
+        stan = 'on' - włącza sygnał ciągły
+        stan = 'off' - wyłącza sygnał ciągły
+        stan = 'demo' - to do, demo muzyczki Star Wars - to do
         '''
-        for x in range(1):
-            self.BUZ.write(1)
-            sleep(0.06)
-            self.BUZ.write(0)
-            sleep(0.06)
+        if stan == 'on':
+            self.board.play_tone(4, Constants.TONE_TONE, 440)
+        if stan == 'off':
+            self.board.play_tone(4, Constants.TONE_NO_TONE, 440)
+        if stan == 'demo':
+            print('Demo będzie w późniejszym terminie...')

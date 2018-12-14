@@ -17,7 +17,7 @@
  W programie wykorzystano moduł pymata_aio (https://github.com/MrYsLab/pymata-aio)
  autorstwa Alan'a Yorinks'a (MrYsLab) oraz oprogramowanie firmowe do Arduino tego
  autora (https://github.com/MrYsLab/pymata-aio/tree/master/FirmataPlus).
- 
+
 """
 
 # Import modułu PyMata3 dla Python'a 3
@@ -36,7 +36,7 @@ def portArduino():
     lists = list(serial.tools.list_ports.comports())
     lists = sorted(lists)
     for x in lists:
-        if x[2].find('FTDI') != -1 or x[1].find('USB Serial Port') != -1:
+        if x[1].find('FT231X') != -1:
             return x[0]
     return 'NULL'
 
@@ -44,8 +44,8 @@ def portArduino():
 # Nazwa portu (np. COM4)
 port = portArduino()
 
-# Utworzenie obiektu board (płytka) i automatyczna detekcja portu szeregowego.
-board = PyMata3()
+# Utworzenie obiektu board (płytka) i port szeregowy pobieramy z detekcji portArduino
+board = PyMata3(com_port=port)
 
 # Frame 1 - dioda RGB podłączona do pinów D3, D5 i D6 (PWM).
 
@@ -56,7 +56,7 @@ board.set_pin_mode(6, Constants.PWM)
 def send_P_R(pwm_red):
     board.analog_write(5, int(pwm_red))
     LB_R.config(text = "~D5: "+pwm_red)
-    
+
 def send_P_G(pwm_green):
     board.analog_write(3, int(pwm_green))
     LB_G.config(text = "~D3: "+pwm_green)
@@ -70,7 +70,7 @@ def send_P_B(pwm_blue):
 def buzzer_on():
     board.play_tone(4, Constants.TONE_TONE, 440)
     LB1_2.config(text = "D4: ON")
-    
+
 def buzzer_off():
     board.play_tone(4, Constants.TONE_NO_TONE, 440)
     LB1_2.config(text = "D4: OFF")
@@ -82,15 +82,15 @@ board.set_pin_mode(9, Constants.PWM)
 def send_PWM(pwm_pin9):
     board.analog_write(9, int(pwm_pin9))
     LB_PWM.config(text = "~D9: "+pwm_pin9)
-    
 
-# Frame 4 - model sygnalizatora drogowego 
 
-#  Światło zielone - pin D2    
+# Frame 4 - model sygnalizatora drogowego
+
+#  Światło zielone - pin D2
 board.set_pin_mode(2, Constants.OUTPUT)
-#  Światło żółte - pin D7 
+#  Światło żółte - pin D7
 board.set_pin_mode(7, Constants.OUTPUT)
-#  Światło czerwone - pin D8 
+#  Światło czerwone - pin D8
 board.set_pin_mode(8, Constants.OUTPUT)
 
 def red():
@@ -108,7 +108,7 @@ def yellow():
     else:
         board.digital_write(7, 0)
         LB6.config(text = "D7: LOW")
-        
+
 def green():
     if var3.get() == 1:
         board.digital_write(2, 1)
@@ -118,13 +118,13 @@ def green():
         LB7.config(text = "D2: LOW")
 
 # Frame 5 - dioda LED (wbudowana) - pin D13.
-        
+
 board.set_pin_mode(13, Constants.OUTPUT)
 
 def LED13_on():
     board.digital_write(13, 1)
     LB3_4.config(text = "D13: HIGH")
-    
+
 def LED13_off():
     board.digital_write(13, 0)
     LB3_4.config(text = "D13: LOW")
@@ -145,7 +145,7 @@ def poziom(p):
         return('HIGH')
     else:
         return('LOW')
-    
+
 def read_buttons():
   def rb():
     temp = board.digital_read(12)
@@ -183,10 +183,10 @@ def read_analog():
     str_a2 = 'Natężenie światła: {0:6.0f}%'.format(a2/1023.0*100)
     str_a2 += '\t\tA2: {0:5d}'.format(a2)
     lab_2.config(text=str_a2)
-    
+
     # Odczyt natężenia dźwięku - pin analogowy A3.
     a3 = board.analog_read(3) # Wartość od 0 do 1023.
-    str_a3 = 'Natężenie dźwięku:{0:5.0f}%'.format(a3/1023.0*100) 
+    str_a3 = 'Natężenie dźwięku:{0:5.0f}%'.format(a3/1023.0*100)
     str_a3 += '\t\tA3: {0:5d}'.format(a3)
     lab_3.config(text=str_a3)
 
@@ -197,7 +197,7 @@ def read_analog():
     # być inna w każdej płytce (zależy od wartości użytych rezystorów)
     temp -= 0.5
     temp /= 0.01
-    str_a4 = 'Temperatura: {0:8.1f} °C'.format(temp)  
+    str_a4 = 'Temperatura: {0:8.1f} °C'.format(temp)
     str_a4 += '\t\tA4: {0:5d}'.format(a4)
     lab_4.config(text=str_a4)
 
@@ -210,7 +210,7 @@ def read_analog():
   ra()
 
 
-# Główne okno programu.    
+# Główne okno programu.
 root = Tk()
 root.geometry('530x500')
 root.title('PyTechBrain3 - test')
