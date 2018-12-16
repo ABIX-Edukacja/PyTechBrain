@@ -19,7 +19,7 @@
  autora (https://github.com/MrYsLab/pymata-aio/tree/master/FirmataPlus)
 '''
 
-_pytechbrain_version_ = 0.1
+_pytechbrain_version_ = 0.2
 
 try:
     from pymata_aio.pymata3 import PyMata3
@@ -167,7 +167,7 @@ class PyTechBrain(object):
 
     def PWM_modulacja(self,nasilenie):
         '''
-        nasilenie - wartość od 0 do 1 -
+        nasilenie - wartość od 0 do 255
         '''
         if nasilenie < 0:
             nasilenie = 0
@@ -250,7 +250,7 @@ class PyTechBrain(object):
     def temperatura_C(self):
         '''
         zwraca wartość czujnika temperatury przeliczoną na skalę Celcjusza
-        Bazuje na obliczeniach Wiesława Raty z Leska
+        Bazuje na obliczeniach Wiesława Rychlickiego z Leska
         '''
         x = self.temperatura_raw()
         wynik = round( x * 5 / 1023.0 / 2.45 ,0)
