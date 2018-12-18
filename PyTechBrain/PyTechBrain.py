@@ -24,6 +24,7 @@ _pytechbrain_version_ = 0.2
 try:
     from pymata_aio.pymata3 import PyMata3
     from pymata_aio.constants import Constants
+    from sys import exit
 except:
     print('Brak modułu PyMata3 - PyTechBrain nie będzie działać prawidłowo....')
     print('------------[ ERROR ]----------------------------------------------')
@@ -55,14 +56,18 @@ class PyTechBrain(object):
             return None
 
         if szukaj == 'auto':
+            print('Próba automatycznej detekcji portu ...')
             try:
-                print('Próba automatycznej detekcji portu ...')
                 p = portArduino()
-                port = p[0]
-                print('OK - znaleziono PyTechBrain...'+port+' => '+p[2])
-                self.board = PyMata3(com_port=port)
+                if p != None:
+                    port = p[0]
+                    print('OK - znaleziono PyTechBrain...'+port+' => '+p[2])
+                    self.board = PyMata3(com_port=port)
+                else:
+                    print('Coś nie tak z poszukiwaniem plytki - może nie podłączona?')
+                    sys.exit()
             except:
-                print('Coś nie tak z poszukiwaniem plytki - może nie podłączona? [port: '+port+' ]')
+                print('Coś nie tak z poszukiwaniem plytki - może nie podłączona?')
                 raise
         else:
             try:
