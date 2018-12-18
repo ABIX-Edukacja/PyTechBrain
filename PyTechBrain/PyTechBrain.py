@@ -19,7 +19,7 @@
  autora (https://github.com/MrYsLab/pymata-aio/tree/master/FirmataPlus)
 '''
 
-_pytechbrain_version_ = 0.2
+_pytechbrain_version_ = 0.3
 
 try:
     from pymata_aio.pymata3 import PyMata3
@@ -59,7 +59,7 @@ class PyTechBrain(object):
             print('Próba automatycznej detekcji portu ...')
             try:
                 p = portArduino()
-                if p != None:
+                if p:
                     port = p[0]
                     print('OK - znaleziono PyTechBrain...'+port+' => '+p[2])
                     self.board = PyMata3(com_port=port)
