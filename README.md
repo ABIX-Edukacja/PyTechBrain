@@ -23,7 +23,10 @@ uklad = PyTechBrain()
 
 Sterownik dla Windows: https://www.ftdichip.com/Drivers/VCP.htm
 
-Oprogramowanie Graficznie : http://snap4arduino.rocks/
+Oprogramowanie Graficznie : 
+
+- Scratch 2.0 offline - https://scratch.mit.edu/download
+- s2aio - https://pypi.org/project/s2aio/
 
 ====================================================================
 
@@ -31,49 +34,49 @@ Przypisanie pinów:
 
 # wejścia cyfrowe - przyciski
 
-self.B01 = self.board.get_pin('d:12:i')
+self.B01 = 12
 
-self.B02 = self.board.get_pin('d:11:i')
+self.B02 = 11
 
-self.B03 = self.board.get_pin('d:10:i')
+self.B03 = 10
 
-# wyjścia cyfrowe
+# wyjścia cyfrowe - dioda serwisowa
 
-self.L13 = self.board.get_pin('d:13:o')
+self.L13 = 13
 
 # Dioda PWM
 
-self.PWM = self.board.get_pin('d:9:p')
+self.PWM = 9
 
-# Sygnalizator
+# Sygnalizator świateł na skrzyżowaniu
 
-self.L_R = self.board.get_pin('d:8:o')
+self.L_R = 8
 
-self.L_Y = self.board.get_pin('d:7:o')
+self.L_Y = 7
 
-self.L_G = self.board.get_pin('d:2:o')
+self.L_G = 2
 
 # dioda RGB
 
-self.P_R = self.board.get_pin('d:5:p') 
+self.P_R = 5
 
-self.P_G = self.board.get_pin('d:3:p')
+self.P_G = 3
 
-self.P_B = self.board.get_pin('d:6:p')
+self.P_B = 6
 
-# buzzer
+# buzzer sterowany tonowo
 
-self.BUZ = self.board.get_pin('d:4:o')
+self.BUZ = 4
 
 # czujniki analogowe
 
-self.fotorezystor   = self.board.get_pin('a:2:i')
+self.fotorezystor   = 2
 
-self.glosnosc       = self.board.get_pin('a:3:i')
+self.glosnosc       = 3
 
-self.temperatura    = self.board.get_pin('a:4:i')
+self.temperatura    = 4
 
-self.potencjometr   = self.board.get_pin('a:5:i')
+self.potencjometr   = 5
 
 ==============================================================
 
