@@ -19,7 +19,7 @@
  autora (https://github.com/MrYsLab/pymata-aio/tree/master/FirmataPlus)
 '''
 
-_pytechbrain_version_ = 0.3
+_pytechbrain_version_ = 0.4a
 
 try:
     from pymata_aio.pymata3 import PyMata3
@@ -40,6 +40,7 @@ class PyTechBrain(object):
     Obiekt typu PyFirmata, kod działa z Python3 - płytka produkcji ABIX Edukacja
     Uwaga - na chwilę obecną automatyczne wyszukiwanie płytki działa w Linux i Windows (sprawdzone)
     wówczas szukaj  = 'auto' lub w ogóle nie trzeba nic podawać,
+    szukaj = 'abiduino' dla starych płytek AbiDuino z CH-340
     w macOS być może należy podać odpowiedni COM, np. /dev/cuayyy34
     chętnych do współtworzenia kodu zapraszamy https://github.com/ABIX-Edukacja/PyTechBrain
     '''
@@ -66,6 +67,13 @@ class PyTechBrain(object):
                 else:
                     print('Coś nie tak z poszukiwaniem plytki - może nie podłączona?')
                     sys.exit()
+            except:
+                print('Coś nie tak z poszukiwaniem plytki - może nie podłączona?')
+                raise
+        elif szukaj == 'abiduino':
+            print('Próba automatycznej detekcji portu ...')
+            try:
+                self.board = util.get_the_board(base_dir='/dev/serial/by-id/', identifier='usb-')
             except:
                 print('Coś nie tak z poszukiwaniem plytki - może nie podłączona?')
                 raise
