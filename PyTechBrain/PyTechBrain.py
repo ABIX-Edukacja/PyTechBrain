@@ -19,7 +19,7 @@
  autora (https://github.com/MrYsLab/pymata-aio/tree/master/FirmataPlus)
 '''
 
-_pytechbrain_version_ = 0.4a
+_pytechbrain_version_ = '0.5'
 
 try:
     from pymata_aio.pymata3 import PyMata3
@@ -33,15 +33,14 @@ from time import sleep
 import serial,sys
 import serial.tools.list_ports
 
-print('OK - załadowałem moduł PyTechBrain... [ '+ str(_pytechbrain_version_) +' ]')
+print('OK - załadowałem moduł PyTechBrain... [ '+ repr(_pytechbrain_version_) +' ]')
 
 class PyTechBrain(object):
     '''
     Obiekt typu PyFirmata, kod działa z Python3 - płytka produkcji ABIX Edukacja
     Uwaga - na chwilę obecną automatyczne wyszukiwanie płytki działa w Linux i Windows (sprawdzone)
     wówczas szukaj  = 'auto' lub w ogóle nie trzeba nic podawać,
-    szukaj = 'abiduino' dla starych płytek AbiDuino z CH-340
-    w macOS być może należy podać odpowiedni COM, np. /dev/cuayyy34
+    w macOS być może też zadziała automat lub należy podać odpowiedni COM, np. szukaj='/dev/cuayyy34'
     chętnych do współtworzenia kodu zapraszamy https://github.com/ABIX-Edukacja/PyTechBrain
     '''
 
@@ -52,7 +51,7 @@ class PyTechBrain(object):
             lists = list(serial.tools.list_ports.comports())
             lists = sorted(lists)
             for x in lists:
-                if x[1].find('FT231X') != -1:
+                if x[1] == 'ABIX_PyTechBrain':
                     return x
             return None
 
@@ -60,29 +59,23 @@ class PyTechBrain(object):
             print('Próba automatycznej detekcji portu ...')
             try:
                 p = portArduino()
-                if p:
-                    port = p[0]
-                    print('OK - znaleziono PyTechBrain...'+port+' => '+p[2])
-                    self.board = PyMata3(com_port=port)
-                else:
-                    print('Coś nie tak z poszukiwaniem plytki - może nie podłączona?')
-                    sys.exit()
             except:
                 print('Coś nie tak z poszukiwaniem plytki - może nie podłączona?')
-                raise
-        elif szukaj == 'abiduino':
-            print('Próba automatycznej detekcji portu ...')
-            try:
-                self.board = util.get_the_board(base_dir='/dev/serial/by-id/', identifier='usb-')
-            except:
+                raise RuntimeError('Problem z automatyczną detekcją')
+                sys.exit()
+            if p:
+                port = p[0]
+                print('OK - znaleziono PyTechBrain... ['+port+'] => '+p[2])
+                self.board = PyMata3(com_port=port)
+            else:
                 print('Coś nie tak z poszukiwaniem plytki - może nie podłączona?')
-                raise
+                sys.exit()
         else:
             try:
-                print('Próba podłączenia portu podanego jako parametr...')
+                print('Próba podłączenia portu podanego jako parametr...'+szukaj)
                 self.board = PyMata3(com_port=szukaj)
             except:
-                print('Coś nie tak z poszukiwaniem plytki - może nie podłączona (MacOS) ?')
+                print('Coś nie tak z poszukiwaniem plytki - może nie podłączona ?')
                 raise
 
 
@@ -141,7 +134,7 @@ class PyTechBrain(object):
 
     def RGB_czerwona(self,nasilenie):
         '''
-        nasilenie - wartość 0..255
+        nasilenie - wartość int 0..255
         '''
         if nasilenie < 0:
             nasilenie = 0
@@ -151,7 +144,7 @@ class PyTechBrain(object):
 
     def RGB_zielona(self,nasilenie):
         '''
-        nasilenie - wartość 0..255
+        nasilenie - wartość int 0..255
         '''
         if nasilenie < 0:
             nasilenie = 0
@@ -161,7 +154,7 @@ class PyTechBrain(object):
 
     def RGB_niebieska(self,nasilenie):
         '''
-        nasilenie - wartość od 0..255
+        nasilenie - wartość int 0..255
         '''
         if nasilenie < 0:
             nasilenie = 0
@@ -171,7 +164,7 @@ class PyTechBrain(object):
 
     def RGB_kolor(self,red,green,blue):
         '''
-        ta funkcja ustawi diodę RGB - podajemy wartości od 0 do 255,
+        ta funkcja ustawi diodę RGB - podajemy wartości int 0..255,
         wszystkie kolory w jednym parametrze (r,g,b) = Tupla
         '''
         self.RGB_czerwona(red)
@@ -180,7 +173,7 @@ class PyTechBrain(object):
 
     def PWM_modulacja(self,nasilenie):
         '''
-        nasilenie - wartość od 0 do 255
+        nasilenie - wartość int 0..255
         '''
         if nasilenie < 0:
             nasilenie = 0
@@ -222,16 +215,28 @@ class PyTechBrain(object):
             self.board.digital_write(self.L_G,0)
 
     def przycisk_lewy(self):
+        '''
+        zwraca True jeśli naciśnięty przycisk
+        '''
         return self.board.digital_read(self.B01)
 
     def przycisk_srodkowy(self):
+        '''
+        zwraca True jeśli naciśnięty przycisk
+        '''
         return self.board.digital_read(self.B02)
 
     def przycisk_prawy(self):
+        '''
+        zwraca True jeśli naciśnięty przycisk
+        '''
         return self.board.digital_read(self.B03)
 
     # a teraz inna wersja, czyta dwa razy na wszelki wypadek
     def przycisk_lewy_2(self):
+        '''
+        zwraca True jeśli naciśnięty przycisk - dwa odczyty zanim zwróci wynik
+        '''
         for x in range(2):
             wynik = self.board.digital_read(self.B01)
             if wynik:
@@ -239,6 +244,9 @@ class PyTechBrain(object):
         return wynik
 
     def przycisk_srodkowy_2(self):
+        '''
+        zwraca True jeśli naciśnięty przycisk - dwa odczyty zanim zwróci wynik
+        '''
         for x in range(2):
             wynik = self.board.digital_read(self.B02)
             if wynik:
@@ -246,6 +254,9 @@ class PyTechBrain(object):
         return wynik
 
     def przycisk_prawy_2(self):
+        '''
+        zwraca True jeśli naciśnięty przycisk - dwa odczyty zanim zwróci wynik
+        '''
         for x in range(2):
             wynik = self.board.digital_read(self.B03)
             if wynik:
@@ -262,11 +273,11 @@ class PyTechBrain(object):
 
     def temperatura_C(self):
         '''
-        zwraca wartość czujnika temperatury przeliczoną na skalę Celcjusza
-        Bazuje na obliczeniach Wiesława Rychlickiego z Leska
+        zwraca wartość float temperaturę przeliczoną na skalę Celcjusza (99.9)
+        Bazuje na obliczeniach ABIX
         '''
         x = self.temperatura_raw()
-        wynik = round( x * 5 / 1023.0 / 2.45 ,0)
+        wynik = float( round( ( x * 0.125 ) -  22 ,1 ) )
         return wynik
 
     def fotorezystor_raw(self):
