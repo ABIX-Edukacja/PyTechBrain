@@ -19,7 +19,122 @@
  autora (https://github.com/MrYsLab/pymata-aio/tree/master/FirmataPlus)
 '''
 
-_pytechbrain_version_ = '0.5'
+_pytechbrain_version_ = '0.6'
+
+# definicje nut dla funkcji nuta
+C0=16
+Db0=17
+D0=18
+Eb0=19
+E0=21
+F0=22
+Gb0=23
+G0=24
+Ab0=26
+A0=27
+Bb0=29
+B0=31
+C1=33
+Db1=35
+D1=37
+Eb1=39
+E1=41
+F1=44
+Gb1=46
+G1=49
+Ab1=52
+A1=55
+Bb1=58
+B1=62
+C2=65
+Db2=69
+D2=73
+Eb2=78
+E2=82
+F2=87
+Gb2=92
+G2=98
+Ab2=104
+A2=110
+Bb2=117
+B2=123
+C3=131
+Db3=139
+D3=147
+Eb3=156
+E3=165
+F3=175
+Gb3=185
+G3=196
+Ab3=208
+A3=220
+Bb3=233
+B3=247
+C4=262
+Db4=277
+D4=294
+Eb4=311
+E4=330
+F4=349
+Gb4=370
+G4=392
+Ab4=415
+A4=440
+Bb4=466
+B4=494
+C5=523
+Db5=554
+D5=587
+Eb5=622
+E5=659
+F5=698
+Gb5=740
+G5=784
+Ab5=831
+A5=880
+Bb5=932
+B5=988
+C6=1047
+Db6=1109
+D6=1175
+Eb6=1245
+E6=1319
+F6=1397
+Gb6=1480
+G6=1568
+Ab6=1661
+A6=1760
+Bb6=1865
+B6=1976
+C7=2093
+Db7=2217
+D7=2349
+Eb7=2489
+E7=2637
+F7=2794
+Gb7=2960
+G7=3136
+Ab7=3322
+A7=3520
+Bb7=3729
+B7=3951
+C8=4186
+Db8=4435
+D8=4699
+Eb8=4978
+
+# definicje czasów odgrywania nuta
+#define BPM 120    //  you can change this value changing all the others
+BPM=120
+#define H 2*Q //half 2/4 and Q 60000/BPM //quarter 1/4
+Q=60.0/BPM
+H=2*Q
+#define E Q/2   //eighth 1/8
+E=Q/2
+#define S Q/4 // sixteenth 1/16
+S=Q/4
+#define W 4*Q // whole 4/4
+W=4*Q
 
 try:
     from pymata_aio.pymata3 import PyMata3
@@ -30,7 +145,7 @@ except:
     print('------------[ ERROR ]----------------------------------------------')
 
 from time import sleep
-import serial,sys
+# import serial
 import serial.tools.list_ports
 
 print('OK - załadowałem moduł PyTechBrain... [ '+ repr(_pytechbrain_version_) +' ]')
@@ -62,14 +177,14 @@ class PyTechBrain(object):
             except:
                 print('Coś nie tak z poszukiwaniem plytki - może nie podłączona?')
                 raise RuntimeError('Problem z automatyczną detekcją')
-                sys.exit()
+                exit()
             if p:
                 port = p[0]
                 print('OK - znaleziono PyTechBrain... ['+port+'] => '+p[2])
                 self.board = PyMata3(com_port=port)
             else:
                 print('Coś nie tak z poszukiwaniem plytki - może nie podłączona?')
-                sys.exit()
+                exit()
         else:
             try:
                 print('Próba podłączenia portu podanego jako parametr...'+szukaj)
@@ -312,6 +427,90 @@ class PyTechBrain(object):
 
 ################################################################################
 
+    def nuta(self, f, t):
+        '''
+        Odgrywa nutę 'f' w czasie 't'
+        Nuty zdefiniowane w bibliotece
+        '''
+        self.board.play_tone(4, Constants.TONE_TONE, f)
+        sleep(t)
+        self.board.play_tone(4, Constants.TONE_NO_TONE, f)
+
+    def pauza(self, t):
+        sleep(t)
+
+    def graj_star_wars(self):
+        self.nuta(A3,Q)
+        self.nuta(A3,Q)
+        self.nuta(A3,Q)
+        self.nuta(F3,E+S)
+        self.nuta(C4,S)
+        self.nuta(A3,Q)
+        self.nuta(F3,E+S)
+        self.nuta(C4,S)
+        self.nuta(A3,H)
+        self.nuta(E4,Q)
+        self.nuta(E4,Q)
+        self.nuta(E4,Q)
+        self.nuta(F4,E+S)
+        self.nuta(C4,S)
+        self.nuta(Ab3,Q)
+        self.nuta(F3,E+S)
+        self.nuta(C4,S)
+        self.nuta(A3,H)
+        self.nuta(A4,Q)
+        self.nuta(A3,E+S)
+        self.nuta(A3,S)
+        self.nuta(A4,Q)
+        self.nuta(Ab4,E+S)
+        self.nuta(G4,S)
+        self.nuta(Gb4,S)
+        self.nuta(E4,S)
+        self.nuta(F4,E)
+        self.pauza(E)
+        self.nuta(Bb3,E)
+        self.nuta(Eb4,Q)
+        self.nuta(D4,E+S)
+        self.nuta(Db4,S)
+        self.nuta(C4,S)
+        self.nuta(B3,S)
+        self.nuta(C4,E)
+        self.pauza(1+E)
+        self.nuta(F3,E)
+        self.nuta(Ab3,Q)
+        self.nuta(F3,E+S)
+        self.nuta(A3,S)
+        self.nuta(C4,Q)
+        self.nuta(A3,E+S)
+        self.nuta(C4,S)
+        self.nuta(E4,H)
+        self.nuta(A4,Q)
+        self.nuta(A3,E+S)
+        self.nuta(A3,S)
+        self.nuta(A4,Q)
+        self.nuta(Ab4,E+S)
+        self.nuta(G4,S)
+        self.nuta(Gb4,S)
+        self.nuta(E4,S)
+        self.nuta(F4,E)
+        self.pauza(E)
+        self.nuta(Eb4,Q)
+        self.nuta(Bb3,E)
+        self.nuta(D4,E+S)
+        self.nuta(Db4,S)
+        self.nuta(C4,S)
+        self.nuta(B3,S)
+        self.nuta(C4,E)
+        self.pauza(E)
+        self.nuta(F3,E)
+        self.nuta(Ab3,Q)
+        self.nuta(F3,E+S)
+        self.nuta(C4,S)
+        self.nuta(A3,Q)
+        self.nuta(F3,E+S)
+        self.nuta(C4,S)
+        self.nuta(A3,H)
+        self.pauza(2*H)
 
     def buzzer_sygnal(self,stan):
         '''
@@ -324,4 +523,5 @@ class PyTechBrain(object):
         if stan == 'off':
             self.board.play_tone(4, Constants.TONE_NO_TONE, 440)
         if stan == 'demo':
-            print('Demo będzie w późniejszym terminie...')
+            print('Demo - gramy Star Wars...')
+            self.graj_star_wars()
