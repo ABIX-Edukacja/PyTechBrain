@@ -19,7 +19,7 @@
  autora (https://github.com/MrYsLab/pymata-aio/tree/master/FirmataPlus)
 '''
 
-_pytechbrain_version_ = '0.6'
+_pytechbrain_version_ = '0.6a'
 
 # definicje nut dla funkcji nuta
 C0=16
@@ -184,13 +184,21 @@ class PyTechBrain(object):
                 self.board = PyMata3(com_port=port)
             else:
                 print('Coś nie tak z poszukiwaniem plytki - może nie podłączona?')
+                print('Parametr p => '+ str(p))
+                raise RuntimeError('Problem z podłączeniem mimo znalezionego p.')
                 exit()
         else:
             try:
+                print('-------------[ ręcznie podany port ]-------------------------')
                 print('Próba podłączenia portu podanego jako parametr...'+szukaj)
                 self.board = PyMata3(com_port=szukaj)
             except:
-                print('Coś nie tak z poszukiwaniem plytki - może nie podłączona ?')
+                print('-------------[ ERROR ]-------------------------------------------------------')
+                print('Coś nie tak z podłączeniem plytki do: '+szukaj+' - może nie podłączona ?')
+                print('Spróbuj polecenia \"list_serial_ports\" wydanego w terminalu, np.: ')
+                print('adasiek@adasiek-desktop:~$ list_serial_ports')
+                print('/dev/ttyUSB0: FTDI')
+                print('-------------[ ERROR ]-------------------------------------------------------')
                 raise
 
 
