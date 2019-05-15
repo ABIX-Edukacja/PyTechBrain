@@ -1,5 +1,0 @@
->>> it = util.Iterator(board)
->>> it.start()
->>> board.analog[0].enable_reporting()
->>> board.analog[0].read()
-0.661440304938

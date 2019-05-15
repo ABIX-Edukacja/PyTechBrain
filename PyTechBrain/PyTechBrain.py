@@ -19,7 +19,7 @@
  autora (https://github.com/MrYsLab/pymata-aio/tree/master/FirmataPlus)
 '''
 
-_pytechbrain_version_ = '0.6a'
+_pytechbrain_version_ = '0.7.0'
 
 # definicje nut dla funkcji nuta
 C0=16
@@ -145,10 +145,11 @@ except:
     print('------------[ ERROR ]----------------------------------------------')
 
 from time import sleep
+from sys import platform
 # import serial
 import serial.tools.list_ports
 
-print('OK - załadowałem moduł PyTechBrain... [ '+ repr(_pytechbrain_version_) +' ]')
+print('OK - załadowałem moduł PyTechBrain... [ '+ str(_pytechbrain_version_) +' ]')
 
 class PyTechBrain(object):
     '''
@@ -166,8 +167,17 @@ class PyTechBrain(object):
             lists = list(serial.tools.list_ports.comports())
             lists = sorted(lists)
             for x in lists:
-                if x[1] == 'ABIX_PyTechBrain':
-                    return x
+                print('-------------------')
+                print('0',x[0])
+                print('1',x[1])
+                print('2',x[2])
+            if 'linux' in platform or 'darwin' in platform:
+                for x in lists:
+                    if x[1] == 'ABIX_PyTechBrain':
+                        return x
+            if 'win' in platform:
+                    if 'USB' in x[1]:
+                        return x
             return None
 
         if szukaj == 'auto':
@@ -180,11 +190,21 @@ class PyTechBrain(object):
                 exit()
             if p:
                 port = p[0]
+                print('----------------------------------------------------')
                 print('OK - znaleziono PyTechBrain... ['+port+'] => '+p[2])
                 self.board = PyMata3(com_port=port)
             else:
+                print('----------------------------------------------------')
                 print('Coś nie tak z poszukiwaniem plytki - może nie podłączona?')
                 print('Parametr p => '+ str(p))
+                print('-----[ Lista portów odnalezionych w systemie: ]----')
+                lists = list(serial.tools.list_ports.comports())
+                print( str(lists) )
+                print('--- Teraz poszczególne elementy: ---')
+                for x in lists:
+                    for e in x:
+                        print(e)
+                print('----------------------------------------------------')
                 raise RuntimeError('Problem z podłączeniem mimo znalezionego p.')
                 exit()
         else:
@@ -198,6 +218,10 @@ class PyTechBrain(object):
                 print('Spróbuj polecenia \"list_serial_ports\" wydanego w terminalu, np.: ')
                 print('adasiek@adasiek-desktop:~$ list_serial_ports')
                 print('/dev/ttyUSB0: FTDI')
+                print('Lub :')
+                print("C:\\Users\\Uczen>list_serial_ports")
+                print('COM1: (Standardowe typy portów)')
+                print('COM4: FTDI')
                 print('-------------[ ERROR ]-------------------------------------------------------')
                 raise
 
@@ -524,12 +548,24 @@ class PyTechBrain(object):
         '''
         stan = 'on' - włącza sygnał ciągły
         stan = 'off' - wyłącza sygnał ciągły
+        stan = 'beep' - krótki (0.1 sek.) sygnał
         stan = 'demo' - to do, demo muzyczki Star Wars - to do
         '''
         if stan == 'on':
             self.board.play_tone(4, Constants.TONE_TONE, 440)
+        if stan == 'beep':
+            self.board.play_tone(4, Constants.TONE_TONE, 440)
+            sleep(0.1)
+            self.board.play_tone(4, Constants.TONE_NO_TONE, 440)
         if stan == 'off':
             self.board.play_tone(4, Constants.TONE_NO_TONE, 440)
         if stan == 'demo':
             print('Demo - gramy Star Wars...')
             self.graj_star_wars()
+
+if __name__ == '__main__':
+    a = 'Młody padawanie - wpisz jednak taką sekwencję \
+    from PyTechBrain import * \
+    uklad = PyTechBrain() \
+    i dopiero wtedy dalej...'
+    print(a)

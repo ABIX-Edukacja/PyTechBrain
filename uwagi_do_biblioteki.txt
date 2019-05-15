@@ -1,6 +1,0 @@
-# Uwagi do biblioteki PyTechBrain i środowiska Mu-Editor:
-
-* każdy odczyt powinien być w pętli spowolniony przez sleep(0.1) - ponieważ
-zbyt szybkie odczyty powodują błędne odczyty przez Mu-Editor...
-
-* czasami odczyt oddaje wartość None zamiast zera - warto sie przed tym również zabezpieczyć
