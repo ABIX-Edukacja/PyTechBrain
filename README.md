@@ -14,15 +14,13 @@ Pamiętaj - po podłączeniu zestawu USB do komputera standardowo urządzenie je
 
 Minimalny kod w Python:
 
-<code>
+'''
 from PyTechBrain import *
-</code>
-.
 
-.
-<code>
+
 uklad = PyTechBrain()
-</code>
+'''
+
 ====================================================================
 
 Sterownik dla Windows: https://www.ftdichip.com/Drivers/VCP.htm
