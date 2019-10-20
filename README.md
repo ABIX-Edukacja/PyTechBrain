@@ -14,12 +14,12 @@ Pamiętaj - po podłączeniu zestawu USB do komputera standardowo urządzenie je
 
 Minimalny kod w Python:
 
-'''
+
 from PyTechBrain import *
 
 
 uklad = PyTechBrain()
-'''
+
 
 ====================================================================
 
