@@ -16,7 +16,9 @@ Minimalny kod w Python:
 
 <code>
 from PyTechBrain import *
+</code>
 
+<code>
 uklad = PyTechBrain()
 </code>
 ====================================================================
