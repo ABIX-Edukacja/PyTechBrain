@@ -19,7 +19,7 @@
  autora (https://github.com/MrYsLab/pymata-aio/tree/master/FirmataPlus)
 '''
 
-_pytechbrain_version_ = '0.7.0'
+_pytechbrain_version_ = '0.7.1'
 
 # definicje nut dla funkcji nuta
 C0=16
@@ -152,17 +152,19 @@ import serial.tools.list_ports
 print('OK - załadowałem moduł PyTechBrain... [ '+ str(_pytechbrain_version_) +' ]')
 
 class PyTechBrain(object):
-    '''
-    Obiekt typu PyFirmata, kod działa z Python3 - płytka produkcji ABIX Edukacja
+    """Obiekt typu PyFirmata, kod działa z Python3 - płytka produkcji ABIX Edukacja
     Uwaga - na chwilę obecną automatyczne wyszukiwanie płytki działa w Linux i Windows (sprawdzone)
     wówczas szukaj  = 'auto' lub w ogóle nie trzeba nic podawać,
     w macOS być może też zadziała automat lub należy podać odpowiedni COM, np. szukaj='/dev/cuayyy34'
     chętnych do współtworzenia kodu zapraszamy https://github.com/ABIX-Edukacja/PyTechBrain
-    '''
+    """
 
 
 
     def __init__(self,szukaj='auto'):
+        """jako parametr możesz podać adres portu, np.:
+        Linux - /dev/ttyUSB0, MacOS - /dev/cuaa01, Windows - COM4"""
+
         def portArduino():
             lists = list(serial.tools.list_ports.comports())
             lists = sorted(lists)
@@ -280,9 +282,7 @@ class PyTechBrain(object):
         #self.it.start()
 
     def RGB_czerwona(self,nasilenie):
-        '''
-        nasilenie - wartość int 0..255
-        '''
+        """nasilenie - wartość int 0..255"""
         if nasilenie < 0:
             nasilenie = 0
         if nasilenie > 255:
@@ -290,9 +290,7 @@ class PyTechBrain(object):
         self.board.analog_write(self.P_R, nasilenie)
 
     def RGB_zielona(self,nasilenie):
-        '''
-        nasilenie - wartość int 0..255
-        '''
+        """nasilenie - wartość int 0..255"""
         if nasilenie < 0:
             nasilenie = 0
         if nasilenie > 255:
@@ -300,9 +298,7 @@ class PyTechBrain(object):
         self.board.analog_write(self.P_G, nasilenie)
 
     def RGB_niebieska(self,nasilenie):
-        '''
-        nasilenie - wartość int 0..255
-        '''
+        """nasilenie - wartość int 0..255"""
         if nasilenie < 0:
             nasilenie = 0
         if nasilenie > 255:
@@ -310,18 +306,14 @@ class PyTechBrain(object):
         self.board.analog_write(self.P_B, nasilenie)
 
     def RGB_kolor(self,red,green,blue):
-        '''
-        ta funkcja ustawi diodę RGB - podajemy wartości int 0..255,
-        wszystkie kolory w jednym parametrze (r,g,b) = Tupla
-        '''
+        """dioda RGB - podajemy wartości int 0..255,
+        wszystkie kolory w jednym parametrze (r,g,b) = Tupla"""
         self.RGB_czerwona(red)
         self.RGB_zielona(green)
         self.RGB_niebieska(blue)
 
     def PWM_modulacja(self,nasilenie):
-        '''
-        nasilenie - wartość int 0..255
-        '''
+        """nasilenie - wartość int 0..255"""
         if nasilenie < 0:
             nasilenie = 0
         if nasilenie > 255:
@@ -329,10 +321,8 @@ class PyTechBrain(object):
         self.board.analog_write(self.PWM, nasilenie)
 
     def sygnalizator_czerwony(self,stan):
-        '''
-        stan = 'on' - włącza światło sygnalizatora
-        stan = 'off' - wyłącza światło sygnalizatora
-        '''
+        """'on' - włącza światło sygnalizatora
+        'off' - wyłącza światło sygnalizatora"""
         if stan == 'on':
             self.board.digital_write(self.L_R,1)
 
@@ -340,10 +330,8 @@ class PyTechBrain(object):
             self.board.digital_write(self.L_R,0)
 
     def sygnalizator_zolty(self,stan):
-        '''
-        stan = 'on' - włącza światło sygnalizatora
-        stan = 'off' - wyłącza światło sygnalizatora
-        '''
+        """'on' - włącza światło sygnalizatora
+        'off' - wyłącza światło sygnalizatora"""
         if stan == 'on':
             self.board.digital_write(self.L_Y,1)
 
@@ -351,10 +339,8 @@ class PyTechBrain(object):
             self.board.digital_write(self.L_Y,0)
 
     def sygnalizator_zielony(self,stan):
-        '''
-        stan = 'on' - włącza światło sygnalizatora
-        stan = 'off' - wyłącza światło sygnalizatora
-        '''
+        """'on' - włącza światło sygnalizatora
+        'off' - wyłącza światło sygnalizatora"""
         if stan == 'on':
             self.board.digital_write(self.L_G,1)
 
@@ -362,28 +348,20 @@ class PyTechBrain(object):
             self.board.digital_write(self.L_G,0)
 
     def przycisk_lewy(self):
-        '''
-        zwraca True jeśli naciśnięty przycisk
-        '''
+        """zwraca True jeśli naciśnięty przycisk"""
         return self.board.digital_read(self.B01)
 
     def przycisk_srodkowy(self):
-        '''
-        zwraca True jeśli naciśnięty przycisk
-        '''
+        """zwraca True jeśli naciśnięty przycisk"""
         return self.board.digital_read(self.B02)
 
     def przycisk_prawy(self):
-        '''
-        zwraca True jeśli naciśnięty przycisk
-        '''
+        """zwraca True jeśli naciśnięty przycisk"""
         return self.board.digital_read(self.B03)
 
     # a teraz inna wersja, czyta dwa razy na wszelki wypadek
     def przycisk_lewy_2(self):
-        '''
-        zwraca True jeśli naciśnięty przycisk - dwa odczyty zanim zwróci wynik
-        '''
+        """zwraca True jeśli naciśnięty przycisk"""
         for x in range(2):
             wynik = self.board.digital_read(self.B01)
             if wynik:
@@ -391,9 +369,7 @@ class PyTechBrain(object):
         return wynik
 
     def przycisk_srodkowy_2(self):
-        '''
-        zwraca True jeśli naciśnięty przycisk - dwa odczyty zanim zwróci wynik
-        '''
+        """zwraca True jeśli naciśnięty przycisk"""
         for x in range(2):
             wynik = self.board.digital_read(self.B02)
             if wynik:
@@ -401,9 +377,7 @@ class PyTechBrain(object):
         return wynik
 
     def przycisk_prawy_2(self):
-        '''
-        zwraca True jeśli naciśnięty przycisk - dwa odczyty zanim zwróci wynik
-        '''
+        """zwraca True jeśli naciśnięty przycisk"""
         for x in range(2):
             wynik = self.board.digital_read(self.B03)
             if wynik:
@@ -412,58 +386,43 @@ class PyTechBrain(object):
 
     # metody odczytujące czujniki analogowe
     def temperatura_raw(self):
-        '''
-        zwraca wartość czujnika temperatury 'raw', czyli dokładnie co oddaje czujnik
-        '''
+        """zwraca wartość czujnika temperatury 'raw',
+        czyli dokładnie co oddaje czujnik - int 0...1023"""
         oddaj = self.board.analog_read(self.TEMPERATURA)
         return 0 if oddaj == None else oddaj
 
     def temperatura_C(self):
-        '''
-        zwraca wartość float temperaturę przeliczoną na skalę Celcjusza (99.9)
-        Bazuje na obliczeniach ABIX
-        '''
+        """zwraca wartość float temperaturę przeliczoną na skalę Celcjusza (99.9)
+        Bazuje na obliczeniach ABIX- round( ( x * 0.125 ) - 22, 1 )"""
         x = self.temperatura_raw()
-        wynik = float( round( ( x * 0.125 ) -  22 ,1 ) )
+        wynik = float( round( ( x * 0.125 ) - 22, 1 ) )
         return wynik
 
     def fotorezystor_raw(self):
-        '''
-        zwraca wartość fotorezystora 'raw', czyli dokładnie co oddaje czujnik
-        '''
+        """zwraca wartość fotorezystora 'raw', int 0...1023"""
         oddaj = self.board.analog_read(self.FOTOREZYSTOR)
         return 0 if oddaj == None else oddaj
 
     def glosnosc_raw(self):
-        '''
-        zwraca wartość czujnika głośności 'raw', czyli dokładnie co oddaje czujnik
-        '''
+        """zwraca wartość czujnika głośności 'raw', int 0...1023"""
         oddaj = self.board.analog_read(self.GLOSNOSC)
         return 0 if oddaj == None else oddaj
 
     def potencjometr_raw(self):
-        '''
-        zwraca wartość wychylenia potencjometru 'raw', czyli dokładnie co oddaje czujnik
-        '''
+        """zwraca wartość wychylenia potencjometru 'raw', int 0...1023"""
         oddaj = self.board.analog_read(self.POTENCJOMETR)
         return 0 if oddaj == None else oddaj
 
 
     def potencjometr_skala(self):
-        '''
-        zwraca wartość wychylenia potencjometru w skali od -52 do +51
-        Zatem 0 to mniej więcej środek położenia potencjometru
-        Ta funkcja wymaga zapewne doszlifowania ...
-        '''
+        """zwraca wartość wychylenia potencjometru w skali od -52 do +51
+        Zatem 0 to mniej więcej środek położenia potencjometru"""
         return ( ( self.potencjometr_raw() - 511.5 ) // 10 )
 
 ################################################################################
 
     def nuta(self, f, t):
-        '''
-        Odgrywa nutę 'f' w czasie 't'
-        Nuty zdefiniowane w bibliotece
-        '''
+        """Odgrywa nutę 'f' w czasie 't' - Nuty zdefiniowane w bibliotece"""
         self.board.play_tone(4, Constants.TONE_TONE, f)
         sleep(t)
         self.board.play_tone(4, Constants.TONE_NO_TONE, f)
@@ -545,12 +504,10 @@ class PyTechBrain(object):
         self.pauza(2*H)
 
     def buzzer_sygnal(self,stan):
-        '''
-        stan = 'on' - włącza sygnał ciągły
-        stan = 'off' - wyłącza sygnał ciągły
-        stan = 'beep' - krótki (0.1 sek.) sygnał
-        stan = 'demo' - to do, demo muzyczki Star Wars - to do
-        '''
+        """'on' - włącza sygnał ciągły
+        'off' - wyłącza sygnał ciągły
+        'beep' - krótki (0.1 sek.) sygnał
+        'demo' - demo muzyczki Star Wars"""
         if stan == 'on':
             self.board.play_tone(4, Constants.TONE_TONE, 440)
         if stan == 'beep':
@@ -564,8 +521,8 @@ class PyTechBrain(object):
             self.graj_star_wars()
 
 if __name__ == '__main__':
-    a = 'Młody padawanie - wpisz jednak taką sekwencję \
-    from PyTechBrain import * \
-    uklad = PyTechBrain() \
-    i dopiero wtedy dalej...'
-    print(a)
+    txt = ("Młody padawanie - wpisz jednak taką sekwencję \n\n"
+    "from PyTechBrain import * \n"
+    "uklad = PyTechBrain() \n\n"
+    "i dopiero wtedy dalej...")
+    print(txt)
