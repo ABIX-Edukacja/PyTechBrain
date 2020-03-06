@@ -152,18 +152,17 @@ import serial.tools.list_ports
 print('OK - załadowałem moduł PyTechBrain... [ '+ str(_pytechbrain_version_) +' ]')
 
 class PyTechBrain(object):
-    """Obiekt typu PyFirmata, kod działa z Python3 - płytka produkcji ABIX Edukacja
-    Uwaga - na chwilę obecną automatyczne wyszukiwanie płytki działa w Linux i Windows (sprawdzone)
-    wówczas szukaj  = 'auto' lub w ogóle nie trzeba nic podawać,
-    w macOS być może też zadziała automat lub należy podać odpowiedni COM, np. szukaj='/dev/cuayyy34'
-    chętnych do współtworzenia kodu zapraszamy https://github.com/ABIX-Edukacja/PyTechBrain
+    """Działa z Python 3.6 i wyżej - płytka produkcji ABIX Edukacja
+    Automatyczne wyszukiwanie płytki działa w Linux i Windows (sprawdzone)
+    wówczas w ogóle nie trzeba nic podawać, lub możesz podać adres portu, np.:
+    Linux - '/dev/ttyUSB0', MacOS - '/dev/cuaa01', Windows - 'COM4'
+    chętnych do współtworzenia kodu zapraszamy:
+    https://pytechbrain.edu.pl | https://github.com/ABIX-Edukacja/PyTechBrain
     """
 
 
 
     def __init__(self,szukaj='auto'):
-        """jako parametr możesz podać adres portu, np.:
-        Linux - /dev/ttyUSB0, MacOS - /dev/cuaa01, Windows - COM4"""
 
         def portArduino():
             lists = list(serial.tools.list_ports.comports())
@@ -177,10 +176,15 @@ class PyTechBrain(object):
                 for x in lists:
                     if x[1] == 'ABIX_PyTechBrain':
                         return x
-            if 'win' in platform:
+                else:
+                    return None
+            elif 'win' in platform:
                     if 'USB' in x[1]:
                         return x
-            return None
+                    else:
+                        return None
+            else:
+                return None
 
         if szukaj == 'auto':
             print('Próba automatycznej detekcji portu ...')
@@ -198,10 +202,10 @@ class PyTechBrain(object):
             else:
                 print('----------------------------------------------------')
                 print('Coś nie tak z poszukiwaniem plytki - może nie podłączona?')
-                print('Parametr p => '+ str(p))
+                print(f"Parametr p => {p}")
                 print('-----[ Lista portów odnalezionych w systemie: ]----')
                 lists = list(serial.tools.list_ports.comports())
-                print( str(lists) )
+                print(lists)
                 print('--- Teraz poszczególne elementy: ---')
                 for x in lists:
                     for e in x:
