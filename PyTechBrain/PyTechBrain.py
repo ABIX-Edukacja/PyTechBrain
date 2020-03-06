@@ -11,15 +11,13 @@
 
  Program przeznaczony jest do płytki edukacyjnej PyTechBrain
  https://pytechbrain.edu.pl/
- https://sklep.cyfrowaszkola.waw.pl/PyTechBrain-Python-elektronika-mechatronika
- https://github.com/ABIX-Edukacja/PyTechBrain
 
  W programie wykorzystano moduł pymata_aio (https://github.com/MrYsLab/pymata-aio)
  autorstwa Alan'a Yorinks'a (MrYsLab) oraz oprogramowanie firmowe do Arduino tego
  autora (https://github.com/MrYsLab/pymata-aio/tree/master/FirmataPlus)
 '''
 
-_pytechbrain_version_ = '0.7.1'
+_pytechbrain_version_ = '0.7.2'
 
 # definicje nut dla funkcji nuta
 C0=16
