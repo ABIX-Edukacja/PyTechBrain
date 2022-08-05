@@ -17,7 +17,7 @@
  autora (https://github.com/MrYsLab/pymata-aio/tree/master/FirmataPlus)
 '''
 
-_pytechbrain_version_ = '0.7.2'
+_pytechbrain_version_ = '0.7.11'
 
 # definicje nut dla funkcji nuta
 C0=16
@@ -143,13 +143,35 @@ except:
     print('------------[ ERROR ]----------------------------------------------')
 
 from time import sleep
-from sys import platform
+from sys import platform, implementation, version, exit
+import sys
 # import serial
 import serial.tools.list_ports
 
-print('OK - załadowałem moduł PyTechBrain... [ '+ str(_pytechbrain_version_) +' ]')
+python_version = (implementation.version.major, implementation.version.minor, implementation.version.micro)
+python_detail = f"{python_version}_{implementation.hexversion}"
+python_string = version.split("\n")[0]
+if python_version < (3,6,0):
+    print(f"Zbyt stara wersja Python -> {python_string}")
+    print("Moduł działa tylko dla wersji minimum 3.6.0")
+    exit(3)
 
-class PyTechBrain(object):
+print(f'OK - załadowałem moduł PyTechBrain... [ {_pytechbrain_version_} ] on {python_string}')
+print("Sprawdzam istniejące porty i urządzenia:")
+
+adapters = list(serial.tools.list_ports.comports())
+for val in adapters:
+    if sys.platform in ("linux", "darwin"):
+        print(f"Element: {val.device} / {val.product} / {val.usb_description()}")
+    if sys.platform.startswith("win"):
+        print(f"Element: {val.description} / {val.manufacturer} / {val.usb_info()}")
+print("-----------------------------------------------")
+print("""Aby aktywować układ, wpisz:
+uklad = PyTechBrain()
+""")
+
+
+class PyTechBrain:
     """Działa z Python 3.6 i wyżej - płytka produkcji ABIX Edukacja
     Automatyczne wyszukiwanie płytki działa w Linux i Windows (sprawdzone)
     wówczas w ogóle nie trzeba nic podawać, lub możesz podać adres portu, np.:
@@ -160,56 +182,40 @@ class PyTechBrain(object):
 
 
 
-    def __init__(self,szukaj='auto'):
+    def __init__(self, szukaj='auto'):
 
-        def portArduino():
-            lists = list(serial.tools.list_ports.comports())
-            lists = sorted(lists)
-            for x in lists:
-                print('-------------------')
-                print('0',x[0])
-                print('1',x[1])
-                print('2',x[2])
-            if 'linux' in platform or 'darwin' in platform:
-                for x in lists:
-                    if x[1] == 'ABIX_PyTechBrain':
-                        return x
-                else:
-                    return None
-            elif 'win' in platform:
-                    if 'USB' in x[1]:
-                        return x
+
+        def arduino_port_pyserial_35():
+            adapters = list(serial.tools.list_ports.comports())
+            for val in adapters:
+                if platform in ("linux", "darwin") and val.product == 'ABIX_PyTechBrain':
+                    print(f"Found on {val.device}")
+                    return val.device
+                elif platform.startswith("win"):
+                    if val.manufacturer.startswith('FTDI') or val.description.startswith("USB Serial"):
+                        print(f"Found on {val.name}")
+                        return val.name
                     else:
-                        return None
+                        print(f"Some error in founding: \n {val.description} / {val.manufacturer} / {val.usb_info()} ")
             else:
-                return None
+                print("Found no adapter....")
+                return False
+
 
         if szukaj == 'auto':
             print('Próba automatycznej detekcji portu ...')
             try:
-                p = portArduino()
+                port = arduino_port_pyserial_35()
             except:
                 print('Coś nie tak z poszukiwaniem plytki - może nie podłączona?')
-                raise RuntimeError('Problem z automatyczną detekcją')
                 exit()
-            if p:
-                port = p[0]
+            if port:
                 print('----------------------------------------------------')
-                print('OK - znaleziono PyTechBrain... ['+port+'] => '+p[2])
+                print(f'OK - znaleziono PyTechBrain -> {port}')
                 self.board = PyMata3(com_port=port)
             else:
                 print('----------------------------------------------------')
                 print('Coś nie tak z poszukiwaniem plytki - może nie podłączona?')
-                print(f"Parametr p => {p}")
-                print('-----[ Lista portów odnalezionych w systemie: ]----')
-                lists = list(serial.tools.list_ports.comports())
-                print(lists)
-                print('--- Teraz poszczególne elementy: ---')
-                for x in lists:
-                    for e in x:
-                        print(e)
-                print('----------------------------------------------------')
-                raise RuntimeError('Problem z podłączeniem mimo znalezionego p.')
                 exit()
         else:
             try:
@@ -227,7 +233,7 @@ class PyTechBrain(object):
                 print('COM1: (Standardowe typy portów)')
                 print('COM4: FTDI')
                 print('-------------[ ERROR ]-------------------------------------------------------')
-                raise
+                exit()
 
 
         # ustawienie parametrów wejść/wyjść
