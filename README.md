@@ -80,13 +80,9 @@ test_board.full_debug_output()
 ```
 
 ====================================================================
+## Oprogramowanie i dokumentacja:
 
-Sterownik dla Windows: https://www.ftdichip.com/Drivers/VCP.htm
-
-Oprogramowanie Graficznie :
-
-- Scratch 2.0 offline - https://scratch.mit.edu/download
-- s2aio - https://pypi.org/project/s2aio/
+https://pytechbrain.edu.pl/oprogramowanie-zasoby.html
 
 ====================================================================
 
