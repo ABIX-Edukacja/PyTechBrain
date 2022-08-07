@@ -12,14 +12,72 @@ Kompatybilny z Arduino UNO R3 i językiem Python
 
 Pamiętaj - po podłączeniu zestawu USB do komputera standardowo urządzenie jest dostępne pod adresem /dev/ttyUSB0
 
-Minimalny kod w Python:
+### Minimalny kod w Python:
 
+```python
+print("This is sample of using PyTechBrain module.")
+print("===========================================")
 
-from PyTechBrain import *
+# creating board object with default debugging with no output
+test_board = PyTechBrain()
 
+# the same, but with full debugging during using module
+# test_board = PyTechBrain(debug=True)
 
-uklad = PyTechBrain()
+# Initializing board - first thing we need to do:
+# automatic
+# if test_board.board_init():
+#     print("Super!")
+# else:
+#     print("Something went wrong... check output.")
+#
+# or manual
+# if test_board.board_init("COM3"):
+#     print("Super!")
+# else:
+#     print("Something went wrong... check output.")
 
+# manual
+if test_board.board_init():
+    print("Super!")
+    test_board.set_buzzer("beep")  # demo, on, off
+
+    for _ in range(300):
+        print(test_board.get_fotoresistor_raw())
+        print(test_board.get_potentiometer_scale())
+        print(test_board.get_temperature_celcius())
+        print(test_board.get_volume_sensor_raw())
+        s(0.1)
+
+    test_board.set_rgb_red(255)
+    s(0.2)
+    test_board.set_rgb_red(0)
+    test_board.set_rgb_green(255)
+    s(0.2)
+    test_board.set_rgb_green(0)
+    test_board.set_rgb_blue(255)
+    s(0.2)
+    test_board.set_rgb_blue(0)
+    s(0.2)
+    test_board.set_pwm_diode(300)
+    s(0.2)
+    #
+    test_board.set_signal_red("on")
+    s(0.3)
+    test_board.set_signal_yellow("on")
+    s(0.3)
+    test_board.set_signal_green("on")
+    s(0.5)
+    test_board.set_signal_red("off")
+    s(0.3)
+    test_board.set_signal_yellow("off")
+    s(0.3)
+    test_board.set_signal_green("off")
+else:
+    print("Something went wrong... check output.")
+
+test_board.full_debug_output()
+```
 
 ====================================================================
 
@@ -32,53 +90,49 @@ Oprogramowanie Graficznie :
 
 ====================================================================
 
-Przypisanie pinów:
+Standardowe metody:
 
-# wejścia cyfrowe - przyciski
+```python
+Valid methods:
 
-self.B01 = 12
+    --[ general-purpose ]--
+    P.license_info() -> str
+    P.version_info() -> str
+    P.debug_output() -> None (prints to screen)
+    P.full_debug_output() -> None (prints to screen)
+    P.usage_info() -> None (prints this text)
 
-self.B02 = 11
+    --[ Output ]--
+    P.set_rgb_red(power: int) ->  bool
+    P.set_rgb_green(power: int) ->  bool
+    P.set_rgb_blue(power: int) ->  bool
+    P.set_rgb_color(color: tuple) -> bool
+    -----------
+    P.set_pwm_diode(power: int) -> bool
+    -----------
+    P.set_signal_red(state: str) -> bool
+    P.set_signal_yellow(state: str) -> bool
+    P.set_signal_green(state: str) -> bool
+    -----------
+    P.set_buzzer(type: str) -> None (plays tones)
+        Different type of buzzer:
+        "on" - turn on signal
+        "off" - turn off signal
+        "beep" - short (0.1 sec.) signal
+        "demo" - music from Star Wars
+    --[ Input ]--
+    get_left_button_state(times=3) -> bool
+    get_middle_button_state(times=3) -> bool
+    get_right_button_state(times=3) -> bool
+    times -> 3 ... 10 checks
 
-self.B03 = 10
-
-# wyjścia cyfrowe - dioda serwisowa
-
-self.L13 = 13
-
-# Dioda PWM
-
-self.PWM = 9
-
-# Sygnalizator świateł na skrzyżowaniu
-
-self.L_R = 8
-
-self.L_Y = 7
-
-self.L_G = 2
-
-# dioda RGB
-
-self.P_R = 5
-
-self.P_G = 3
-
-self.P_B = 6
-
-# buzzer sterowany tonowo
-
-self.BUZ = 4
-
-# czujniki analogowe
-
-self.fotorezystor   = 2
-
-self.glosnosc       = 3
-
-self.temperatura    = 4
-
-self.potencjometr   = 5
+    get_temperature_raw() -> int
+    get_temperature_celcius() -> float (2 decimal precision)
+    get_fotoresistor_raw() -> int
+    get_volume_sensor_raw() -> int
+    get_potentiometer_raw() -> int
+    get_potentiometer_scale() -> float
+```
 
 ==============================================================
 
