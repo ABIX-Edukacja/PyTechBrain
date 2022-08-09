@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+# required:
+# apt install build-essential gcc make libftdi-dev
+#
+
+#/home/adasiek/arduino-1.8.11/hardware/tools/avr/bin/
+#./avrdude -C/home/adasiek/arduino-1.8.11/hardware/tools/avr/etc/avrdude.conf -v -patmega328p -carduino -P/dev/ttyUSB0 -b115200 -D -Uflash:w:FirmataPlus.ino.hex:i
+
+
+./avrdude -Cavrdude.conf -v -patmega328p -carduino -P/dev/ttyUSB0 -b115200 -D -Uflash:w:FirmataPlus.ino.hex:i
+# teraz kodowanie FTDI
+
+echo "Test PyTechBrain " 
+echo "        ------- "
+sudo ./ftx_prog --dump | grep "Product =" 
+echo "        --[teraz zapis]----- " 
+sudo ./ftx_prog --product ABIX_PyTechBrain 
+echo "        ------- " 
+sudo ./ftx_prog --dump | grep "Product ="
+
+
