@@ -9,15 +9,15 @@ from time import sleep
 from sys import exit as exit_application
 
 # create object
-test_board = PyTechBrain()
+my_board = PyTechBrain()
 
-if test_board.board_init():  # initializing connection
+if my_board.board_init():  # initializing connection
     print("Super! Initialization complete.")
-    test_board.set_buzzer("beep")  # demo, on, off
+    my_board.set_buzzer("beep")  # demo, on, off
 else:
     print("Something was wrong!")
-    test_board.full_debug_output()
-    test_board.usage_info()
+    my_board.full_debug_output()
+    my_board.usage_info()
     exit_application(2)
 
 # now we do the rest....
@@ -31,8 +31,8 @@ LEFT - RED - dot | MIDDLE - GREEN - dash
 )
 
 while True:
-    dot = test_board.get_left_button_state(times=3)
-    dash = test_board.get_right_button_state(times=3)
+    dot = my_board.get_left_button_state(times=3)
+    dash = my_board.get_right_button_state(times=3)
 
     if dot:
         my_board.set_signal_green("off")
