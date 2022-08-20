@@ -1,5 +1,4 @@
-# Kod źródłowy dla lekcji:
-# Alfabet Morse'a: lewy klawisz kropka (czerwona dioda), środkowy klawisz kreska (zielony)
+# Kod źródłowy dla lekcji: Podstawowy przycisk - alfabet morse'a
 # Autor: Adam Jurkiewicz, ABIX Edukacja https://pytechbrain.edu.pl
 #
 #
@@ -22,21 +21,15 @@ else:
 
 # now we do the rest....
 
-print(
-    """
-Please press buttons:
-
-LEFT - RED - dot | MIDDLE - GREEN - dash
-"""
-)
-
+print("Left button - red signal")
+print("Right button - exit application")
 while True:
-    dot = test_board.get_left_button_state(times=3)
-    dash = test_board.get_right_button_state(times=3)
-
-    if dot:
-        my_board.set_signal_green("off")
-        my_board.set_signal_red("on")
-    elif dash:
-        my_board.set_signal_red("off")
-        my_board.set_signal_green("on")
+    a = test_board.get_left_button_state(times=3)
+    b = test_board.get_right_button_state(times=3)
+    if b:
+        print("Finish!")
+        exit_application()
+    if a:
+        uklad.sygnalizator_czerwony('on')
+    else:
+        uklad.sygnalizator_czerwony('off')

@@ -3,13 +3,35 @@
 #
 from PyTechBrain import *
 from time import sleep
-from random import randint
-uklad = PyTechBrain()
+from sys import exit as exit_application
 
+# create object
+my_board = PyTechBrain()
 
+if my_board.board_init():  # initializing connection
+    print("Super! Initialization complete.")
+    my_board.set_buzzer("beep")  # demo, on, off
+else:
+    print("Something was wrong!")
+    my_board.full_debug_output()
+    my_board.usage_info()
+    exit_application(2)
+
+# we set off all outputs
+if not my_board.set_off_outputs():
+    print("Something was wrong!")
+    my_board.full_debug_output()
+    exit_application(2)
+
+# now we do the rest.... because everything works!
 while True:
-    r = randint(0,255)
-    g = randint(0,255)
-    b = randint(0,255)
-    uklad.RGB_kolor(r, g, b)
-    sleep(0.2)
+    red = randint(0, 255)
+    green = randint(0, 255)
+    blue = randint(0, 255)
+    uklad.set_rgb_color((red, green, blue))
+
+    # wersja inna
+    # new_color = (randint(0,255), randint(0,255), randint(0,255))
+    # uklad.set_rgb_color(new_color)
+
+    sleep(0.3)

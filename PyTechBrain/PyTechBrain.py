@@ -7,7 +7,7 @@ class PyTechBrain:
     https://pytechbrain.edu.pl | https://github.com/ABIX-Edukacja/PyTechBrain
     """
 
-    __pytechbrain_version = "0.8.1"
+    __pytechbrain_version = "0.8.3"
     copyright_info = """
      Copyright (c) 2022 ABIX Edukacja - All rights reserved.
      This program is free software; you can redistribute it and/or
@@ -204,6 +204,28 @@ class PyTechBrain:
             self.__debug_add("No COM ports found with 'list_ports.comports()'!")
             return False
 
+    def list_devices_and_com_ports(self) -> dict:
+        from sys import platform, implementation
+        from json import dumps
+        import os
+
+        devices = {
+            "system": platform,
+            "uname": str(os.uname())
+            if platform in ("linux", "darwin")
+            else "In Windows os.uname() does not working.",
+            "python": str(implementation),
+        }
+
+        if not self.__get_devices():
+            devices["COM"] = "No COM ports found."
+            return dumps(devices, indent=2)
+
+        for index, val in enumerate(self.com_list):
+            devices[index] = [elem for elem in val]
+
+        return dumps(devices, indent=2)
+
     def debug_output(self) -> None:
         if not self.debug:
             return None
@@ -227,19 +249,19 @@ class PyTechBrain:
             f"""
 This is a PyTechBrain: {self}
 Initializing code:
+
     P = PyTechBrain(debug=False) # or True
-    initialized = False
+
     if P.board_init(search="auto"): # or 'COM3' or '/dev/ttyUSB0' or ...
         print("Super!")
-        initialized = True
     else:
         print("Something went wrong... check output.")
+        test_board.full_debug_output()
+        exit()
 
-    test_board.full_debug_output()
-    #
-    if initialized:
-        # ....
-        # ....
+    # rest of code....
+    # ....
+    # ....
 
 Valid methods:
 
@@ -249,6 +271,7 @@ Valid methods:
     P.debug_output() -> None (prints to screen)
     P.full_debug_output() -> None (prints to screen)
     P.usage_info() -> None (prints this text)
+    P.list_devices_and_com_ports() -> dict (JSON)
 
     --[ Output ]--
     P.set_rgb_red(power: int) ->  bool
@@ -268,6 +291,8 @@ Valid methods:
         "off" - turn off signal
         "beep" - short (0.1 sec.) signal
         "demo" - music from Star Wars
+    -----------
+    P.set_off_outputs() -> boot
     --[ Input ]--
     get_left_button_state(times=3) -> bool
     get_middle_button_state(times=3) -> bool
@@ -625,6 +650,20 @@ Valid methods:
             self.__debug_add("Demo - playing Star Wars...")
             play_star_wars()
 
+    def set_off_outputs(self) -> bool:
+        assert (
+            self.__board_connected == True
+        ), "Board is not connected - do P.board_init() first!"
+
+        ret = [False, False, False, False, False, False]
+        ret[0] = self.set_rgb_color((0, 0, 0))
+        ret[1] = self.set_pwm_diode(0)
+        ret[2] = self.set_signal_red(0)
+        ret[3] = self.set_signal_yellow(0)
+        ret[4] = self.set_signal_green(0)
+        ret[5] = self.set_buzzer("off")
+        return True if all(ret) else False
+
     # ---[ Input ]---
     def get_left_button_state(self, times: int = 3) -> bool:
         """returns True if left button is pressed,
@@ -728,6 +767,21 @@ Valid methods:
         raw_value = self.get_potentiometer_raw()
         return (raw_value - 511.5) / 10
 
+    def full_reset(self) -> bool:
+        """fully resets output to off"""
+        assert (
+            self.__board_connected == True
+        ), "Board is not connected - do P.board_init() first!"
+        outputs = []
+
+        outputs.append(self.set_buzzer("off"))
+        outputs.append(self.set_rgb_color((0, 0, 0)))
+        outputs.append(self.set_signal_red("off"))
+        outputs.append(self.set_signal_green("off"))
+        outputs.append(self.set_signal_yellow("off"))
+        outputs.append(self.set_pwm_diode(0))
+
+        return all(outputs)
 
 
 #########################
@@ -740,6 +794,9 @@ if __name__ == "__main__":
 
     # creating board object with default debugging with no output
     test_board = PyTechBrain()
+
+    print(test_board.list_devices_and_com_ports())
+    sys.exit(0)
 
     # the same, but with full debugging during using module
     # test_board = PyTechBrain(debug=True)
