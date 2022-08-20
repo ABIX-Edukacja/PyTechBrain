@@ -7,7 +7,7 @@ class PyTechBrain:
     https://pytechbrain.edu.pl | https://github.com/ABIX-Edukacja/PyTechBrain
     """
 
-    __pytechbrain_version = "0.8.3"
+    __pytechbrain_version = "0.8.4"
     copyright_info = """
      Copyright (c) 2022 ABIX Edukacja - All rights reserved.
      This program is free software; you can redistribute it and/or
@@ -214,6 +214,7 @@ class PyTechBrain:
             "uname": str(os.uname())
             if platform in ("linux", "darwin")
             else "In Windows os.uname() does not working.",
+            "lib_version_info": self.version_info(),
             "python": str(implementation),
         }
 
@@ -292,7 +293,8 @@ Valid methods:
         "beep" - short (0.1 sec.) signal
         "demo" - music from Star Wars
     -----------
-    P.set_off_outputs() -> boot
+    P.set_off_outputs() -> bool
+
     --[ Input ]--
     get_left_button_state(times=3) -> bool
     get_middle_button_state(times=3) -> bool
@@ -649,20 +651,23 @@ Valid methods:
         elif sound_type == "demo":
             self.__debug_add("Demo - playing Star Wars...")
             play_star_wars()
+        return True
 
     def set_off_outputs(self) -> bool:
+        """fully resets output to off"""
         assert (
             self.__board_connected == True
         ), "Board is not connected - do P.board_init() first!"
+        outputs = []
 
-        ret = [False, False, False, False, False, False]
-        ret[0] = self.set_rgb_color((0, 0, 0))
-        ret[1] = self.set_pwm_diode(0)
-        ret[2] = self.set_signal_red(0)
-        ret[3] = self.set_signal_yellow(0)
-        ret[4] = self.set_signal_green(0)
-        ret[5] = self.set_buzzer("off")
-        return True if all(ret) else False
+        outputs.append(self.set_buzzer("off"))
+        outputs.append(self.set_rgb_color((0, 0, 0)))
+        outputs.append(self.set_signal_red("off"))
+        outputs.append(self.set_signal_green("off"))
+        outputs.append(self.set_signal_yellow("off"))
+        outputs.append(self.set_pwm_diode(0))
+
+        return all(outputs)
 
     # ---[ Input ]---
     def get_left_button_state(self, times: int = 3) -> bool:
@@ -767,105 +772,16 @@ Valid methods:
         raw_value = self.get_potentiometer_raw()
         return (raw_value - 511.5) / 10
 
-    def full_reset(self) -> bool:
-        """fully resets output to off"""
-        assert (
-            self.__board_connected == True
-        ), "Board is not connected - do P.board_init() first!"
-        outputs = []
 
-        outputs.append(self.set_buzzer("off"))
-        outputs.append(self.set_rgb_color((0, 0, 0)))
-        outputs.append(self.set_signal_red("off"))
-        outputs.append(self.set_signal_green("off"))
-        outputs.append(self.set_signal_yellow("off"))
-        outputs.append(self.set_pwm_diode(0))
-
-        return all(outputs)
 
 
 #########################
 if __name__ == "__main__":
-    from time import sleep as s
-    import sys
-
-    print("This is sample of using PyTechBrain module.")
-    print("===========================================")
 
     # creating board object with default debugging with no output
     test_board = PyTechBrain()
 
+    print("This is sample of using PyTechBrain module.")
+    print("===========================================")
+
     print(test_board.list_devices_and_com_ports())
-    sys.exit(0)
-
-    # the same, but with full debugging during using module
-    # test_board = PyTechBrain(debug=True)
-
-    # Initializing board - first thing we ned to do:
-    # automatic
-    # if test_board.board_init():
-    #     print("Super!")
-    # else:
-    #     print("Something went wrong... check output.")
-    #
-    # or manual
-    # if test_board.board_init("COM3"):
-    #     print("Super!")
-    # else:
-    #     print("Something went wrong... check output.")
-
-    # manual
-    if test_board.board_init():
-        print("Super!")
-        test_board.set_buzzer("beep")  # demo, on, off
-        # print("TEST")
-        # s(2)
-        # print("left - ", end=" ")
-        # s(4)
-        # print(test_board.get_left_button_state())
-        #
-        # test_board.set_buzzer("beep")  # demo, on, off
-        # print("middle - ", end=" ")
-        # s(4)
-        # print(test_board.get_middle_button_state())
-        #
-        # test_board.set_buzzer("beep")  # demo, on, off
-        # print("right - ", end=" ")
-        # s(4)
-        # print(test_board.get_right_button_state())
-
-        for _ in range(300):
-            print(test_board.get_fotoresistor_raw())
-            print(test_board.get_potentiometer_scale())
-            print(test_board.get_temperature_celcius())
-            print(test_board.get_volume_sensor_raw())
-            s(0.1)
-
-        test_board.set_rgb_red(255)
-        s(0.2)
-        test_board.set_rgb_red(0)
-        test_board.set_rgb_green(255)
-        s(0.2)
-        test_board.set_rgb_green(0)
-        test_board.set_rgb_blue(255)
-        s(0.2)
-        test_board.set_rgb_blue(0)
-        s(0.2)
-        test_board.set_pwm_diode(300)
-        s(0.2)
-        #
-        test_board.set_signal_red("on")
-        s(0.3)
-        test_board.set_signal_yellow("on")
-        s(0.3)
-        test_board.set_signal_green("on")
-        s(0.5)
-        test_board.set_signal_red("off")
-        s(0.3)
-        test_board.set_signal_yellow("off")
-        s(0.3)
-        test_board.set_signal_green("off")
-    else:
-        print("Something went wrong... check output.")
-
-    test_board.full_debug_output()

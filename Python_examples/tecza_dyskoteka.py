@@ -3,6 +3,7 @@
 #
 from PyTechBrain import *
 from time import sleep
+from random import randint
 from sys import exit as exit_application
 
 # create object
@@ -28,10 +29,10 @@ while True:
     red = randint(0, 255)
     green = randint(0, 255)
     blue = randint(0, 255)
-    uklad.set_rgb_color((red, green, blue))
+    my_board.set_rgb_color((red, green, blue))
 
     # wersja inna
     # new_color = (randint(0,255), randint(0,255), randint(0,255))
-    # uklad.set_rgb_color(new_color)
+    # my_board.set_rgb_color(new_color)
 
     sleep(0.3)
