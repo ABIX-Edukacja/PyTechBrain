@@ -173,7 +173,7 @@ class PyTechBrain:
                     f"Not Arduino FTDI compatible device: {val.description} / {val.manufacturer} / {val.usb_info()} "
                 )
         else:
-            self.__debug_add(f"Error - no FTDI compatible decise found.")
+            self.__debug_add(f"Error - no FTDI compatible device found.")
             return False
 
     def __debug_add(self, data: str) -> None:
