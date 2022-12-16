@@ -61,15 +61,15 @@ Lo technikum: dodatkowo gra ponga i sterowanie, ale z dziedziczeniem klasy i dod
     -----------
     P.set_off_outputs() -> boot
     --[ Input ]--
-    get_left_button_state(times=3) -> bool
-    get_middle_button_state(times=3) -> bool
-    get_right_button_state(times=3) -> bool
+    P.get_left_button_state(times=3) -> bool
+    P.get_middle_button_state(times=3) -> bool
+    P.get_right_button_state(times=3) -> bool
     times -> 3 ... 10 checks
 
-    get_temperature_raw() -> int
-    get_temperature_celcius() -> float (2 decimal precision)
-    get_fotoresistor_raw() -> int
-    get_volume_sensor_raw() -> int
-    get_potentiometer_raw() -> int
-    get_potentiometer_scale() -> float
+    P.get_temperature_raw() -> int
+    P.get_temperature_celcius() -> float (2 decimal precision)
+    P.get_fotoresistor_raw() -> int
+    P.get_volume_sensor_raw() -> int
+    P.get_potentiometer_raw() -> int
+    P.get_potentiometer_scale() -> float
 ```
